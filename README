@@ -1,0 +1,6 @@
+Glut API sucks (steal the event loop from your program), and
+I wanted a wrapper around GL and GLES anyway.
+So here it is, for simple uses.
+
+Edit make.conf to fit your need before running make.
+

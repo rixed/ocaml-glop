@@ -66,8 +66,8 @@ static int init_glx(char const *title, bool with_depth, bool with_alpha)
 
 	x_win = XCreateWindow(x_display, root,
 		0, 0, win_width, win_height, 0,
-		vinfo->depth, CopyFromParent,
-		vinfo->visual, CWBackPixel | CWBorderPixel | CWColormap,
+		vinfo->depth, InputOutput,
+		vinfo->visual, CWEventMask,
 		&swa); 
 
 	XMapWindow(x_display, x_win);

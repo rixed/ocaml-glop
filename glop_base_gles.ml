@@ -30,10 +30,3 @@ struct
     external set_depth_range : K.t -> K.t -> unit = "gles_set_depth_range"
 end
 
-module Glop (Dim : CONF_INT) :
-	GLOP with module V.Dim = Dim =
-struct
-	module GB = GlopBase (Dim)
-	include GB
-	include Glop_impl_common.Extension (GB)
-end

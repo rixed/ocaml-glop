@@ -13,4 +13,4 @@ gmon.out
 *.byte
 *.opt
 _build
-glop_impl.ml
+glop_base.ml

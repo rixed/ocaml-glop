@@ -9,17 +9,17 @@ opt: glop.cmxa
 
 NAME = glop
 
-ML_SOURCES = glop_intf.ml glop_impl_common.ml glop_impl.ml
+ML_SOURCES = glop_intf.ml glop_base.ml glop_impl.ml
 
 ifdef GLES
 C_SOURCES += gles.c
-ML_IMPL = glop_impl_gles.ml
+ML_BASE = glop_base_gles.ml
 else
 C_SOURCES += gl.c
-ML_IMPL = glop_impl_gl.ml
+ML_BASE = glop_base_gl.ml
 endif
 
-glop_impl.ml: $(ML_IMPL)
+glop_base.ml: $(ML_BASE)
 	ln -s $< $@
 
 REQUIRES = bigarray algen
@@ -55,6 +55,6 @@ clean-spec:
 	@make -C tests clean
 
 distclean:
-	@rm -f glop_impl.ml
+	@rm -f glop_base.ml
 
 include .depend

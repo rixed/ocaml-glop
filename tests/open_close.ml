@@ -1,5 +1,5 @@
 (* Build a GL wrapper with vector for 2D drawing *)
-module Glop = Glop_impl.Glop (struct let v = 2 end)
+module Glop = Glop_impl.Glop2D
 open Glop
 
 module Me = Algen_intf.ExtendedMatrix (M)
@@ -32,11 +32,8 @@ let main =
 		clear ~color:(randcol ()) () ;
 		render Triangle_fans vx (Uniq (randcol ())) ;
 		render Line_strip vx (Uniq (randcol ())) ;
-		Printf.fprintf stderr "Swap...\n%!" ;
 		swap_buffers () ;
-		Printf.fprintf stderr "Next Ev...\n%!" ;
 		ignore (next_event false) in
-		Printf.fprintf stderr "Done...\n%!" ;
 	
 	for i = 0 to 4 do
 		frame 10 ;

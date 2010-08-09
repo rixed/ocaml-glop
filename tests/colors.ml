@@ -28,10 +28,7 @@ let main =
 	let modelview = Me.id in
 	modelview.(3).(2) <- Ke.half mone ;
 	set_modelview modelview ;
-	let projection = Me.id in
-	projection.(2).(2) <- mone ;
-	projection.(3).(2) <- mone ;
-	set_projection projection ;
+	set_projection (M.ortho mone K.one mone K.one K.zero (K.add K.one K.one)) ;
 
 	let d = Ke.half K.one in
 	render Triangle_fans (square (K.neg d)) (Uniq red) ;

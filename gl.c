@@ -203,7 +203,6 @@ static void reset_clear_color(value color)
 	for (unsigned i = 0; i < 4; i++) {
 		GLclampf const c = Double_val(Field(color, i));
 		if (c != clear_color[i]) {
-			fprintf(stderr, "changing clear color [%d] to %g\n", i, c);
 			changed = true;
 			clear_color[i] = c;
 		}

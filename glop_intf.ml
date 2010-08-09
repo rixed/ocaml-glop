@@ -3,14 +3,51 @@
 
 open Algen_intf
 
+module type GLMATRIX =
+sig
+	include MATRIX
+	val ortho   : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
+	val frustum : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
+end
+
+module GlMatrix (K : FIELD) : GLMATRIX with module K = K =
+struct
+	module Ke = ExtendedField (K)
+	module MDim : CONF_INT = struct let v = 4 end
+	include ExtendedMatrix (Matrix (K) (MDim) (MDim))
+	let ortho l r b t n f =
+		let two = K.add K.one K.one in
+		let m = id in
+		m.(0).(0) <- Ke.div two (Ke.sub r l) ;
+		m.(1).(1) <- Ke.div two (Ke.sub t b) ;
+		m.(2).(2) <- K.neg (Ke.div two (Ke.sub f n)) ;
+		m.(3).(0) <- K.neg (Ke.div (K.add r l) (Ke.sub r l)) ;
+		m.(3).(1) <- K.neg (Ke.div (K.add t b) (Ke.sub t b)) ;
+		m.(3).(2) <- K.neg (Ke.div (K.add f n) (Ke.sub f n)) ;
+		m
+	let frustum l r b t n f =
+		let twice_n = Ke.double n in
+		let m = id in
+		m.(0).(0) <- Ke.div twice_n (Ke.sub r l) ;
+		m.(1).(1) <- Ke.div twice_n (Ke.sub t b) ;
+		m.(2).(2) <- Ke.div (K.add f n) (Ke.sub n f) ;
+		m.(3).(3) <- Ke.zero ;
+		m.(2).(3) <- Ke.neg K.one ;
+		m.(2).(0) <- Ke.div (K.add r l) (Ke.sub r l) ;
+		m.(2).(1) <- Ke.div (K.add t b) (Ke.sub t b) ;
+		m.(3).(2) <- Ke.div (Ke.mul twice_n f) (Ke.sub n f) ;
+		m
+end
+
 module type GLOPBASE =
 sig
 	module K : FIELD
-	module M : MATRIX with module K = K (** Of size 4x4 *)
+	module M : GLMATRIX with module K = K (** Of size 4x4 *)
 	module V : VECTOR with module K = K	(** Of dimension 2 to 4 *)
 
 	(** Init *)
 
+	(* TODO: pass a callback called whenever the window size change *)
 	val init : ?depth:bool -> ?alpha:bool -> string -> unit
 	val exit : unit -> unit
 

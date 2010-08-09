@@ -5,8 +5,7 @@ module GlopBase (Dim : CONF_INT) :
 	GLOPBASE with module V.Dim = Dim =
 struct
 	module K = Algen_impl.NatIntField (struct let v = 16 end)
-	module MDim = struct let v = 4 end
-	module M = Matrix (K) (MDim) (MDim)
+	module M = GlMatrix (K)
 	module V = ExtendedVector (Vector (K) (Dim))
 
     type event = Clic of (int * int)

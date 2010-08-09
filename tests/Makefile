@@ -2,7 +2,7 @@ OCAMLPATH = ../..
 
 REQUIRES = glop
 
-PROGRAMS = open_close.byte
+PROGRAMS = open_close.byte colors.byte
 all: $(PROGRAMS)
 opt: $(PROGRAMS:.byte=.opt)
 

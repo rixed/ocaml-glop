@@ -190,8 +190,8 @@ CAMLprim value gl_next_event(value wait)
  * Clear
  */
 
-static GLclampf clear_color[4];
-static GLclampf clear_depth;
+static GLclampf clear_color[4] = { -1., -1., -1., -1. };
+static GLclampf clear_depth = -1.;
 
 static void reset_clear_color(value color)
 {
@@ -201,8 +201,9 @@ static void reset_clear_color(value color)
 	bool changed = false;
 
 	for (unsigned i = 0; i < 4; i++) {
-		GLclampf const c = Double_field(color, i);
+		GLclampf const c = Double_val(Field(color, i));
 		if (c != clear_color[i]) {
+			fprintf(stderr, "changing clear color [%d] to %g\n", i, c);
 			changed = true;
 			clear_color[i] = c;
 		}

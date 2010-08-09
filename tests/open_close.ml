@@ -1,9 +1,8 @@
 (* Build a GL wrapper with vector for 2D drawing *)
-module Glop = Glop_impl.Glop2D
-open Glop
+open Glop_impl.Glop2D
 
 module Me = Algen_intf.ExtendedMatrix (M)
-module Ke = Algen_intf.ExtendedField (M.V.K)
+module Ke = Algen_intf.ExtendedField (K)
 
 let randcol () =
 	let rand1 () = Ke.rand Ke.one in
@@ -22,8 +21,7 @@ let main =
 	set_modelview modelview ;
 	let projection = Me.id in
 	projection.(2).(2) <- mone ;
-	projection.(2).(3) <- mone ;
-	projection.(3).(3) <- Ke.zero ;
+	projection.(3).(2) <- mone ;
 	set_projection projection ;
 
 	let frame nb_vertices =

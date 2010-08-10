@@ -26,7 +26,7 @@ REQUIRES = bigarray algen
 
 include make.common
 
-.PHONY: all install uninstall reinstall
+.PHONY: all opt install uninstall reinstall
 
 libglop.a: $(C_SOURCES:.c=.o)
 	$(AR) rcs $@ $^
@@ -39,7 +39,7 @@ $(NAME).cmxa: $(ML_XOBJS) libglop.a
 
 install: all
 	if test -f $(NAME).cmxa ; then extra="$(NAME).cmxa $(NAME).a" ; fi ; \
-	ocamlfind install $(NAME) *.cmi $(NAME).cma META $(NAME).ml cnt.ml libglop.a $$extra
+	ocamlfind install $(NAME) *.cmi $(NAME).cma META glop_intf.ml libglop.a $$extra
 
 uninstall:
 	ocamlfind remove $(NAME)

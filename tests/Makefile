@@ -6,7 +6,7 @@ PROGRAMS = open_close.byte colors.byte
 all: $(PROGRAMS)
 opt: $(PROGRAMS:.byte=.opt)
 
-ML_SOURCES = open_close.ml
+ML_SOURCES = open_close.ml colors.ml
 
 include ../make.common
 

@@ -19,7 +19,7 @@ let square x =
 	vertex_array_init 4 (fun i -> V.add sq.(i) disp)
 
 let main =
-	init "color test" ;
+	init "color test" 800 480 ;
 	let black = K.zero, K.zero, K.zero, K.one
 	and red   = K.one,  K.zero, K.zero, K.one
 	and green = K.zero, K.one,  K.zero, K.one

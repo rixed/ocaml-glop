@@ -13,7 +13,7 @@ let randc n =
 
 let main =
 	Random.self_init () ;
-	init "test" ;
+	init "test" 800 480 ;
 
 	let mone = Ke.neg Ke.one in
 	let modelview = Me.id in

@@ -14,7 +14,7 @@ struct
 	type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
 	type color_specs = Array of vertex_array | Uniq of color
 
-	external init : ?depth:bool -> ?alpha:bool -> string -> unit = "gl_init"
+	external init : ?depth:bool -> ?alpha:bool -> string -> int -> int -> unit = "gl_init"
 	external exit : unit -> unit = "gl_exit"
 	external next_event : bool -> event option = "gl_next_event"
 	external clear : ?color:color -> ?depth:K.t -> unit -> unit = "gl_clear"

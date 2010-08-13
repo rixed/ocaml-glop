@@ -18,7 +18,7 @@
 static Display *x_display;
 static Window x_win;
 static GLXContext glx_context;
-static int win_width = 800, win_height = 480;
+static int win_width, win_height;
 
 /*
  * Init
@@ -40,13 +40,16 @@ static void set_window_size(int width, int height)
 	print_error();
 }
 
-static int init_glx(char const *title, bool with_depth, bool with_alpha)
+static int init_glx(char const *title, bool with_depth, bool with_alpha, int width, int height)
 {
 	x_display = XOpenDisplay(NULL);
 	if (! x_display) {
 		fprintf(stderr, "Cannot connect to X server\n");
 		return -1;
 	}
+
+	win_width = width;
+	win_height = height;
 
 	int attrs[] = {
 		GLX_USE_GL, GLX_DOUBLEBUFFER, GLX_RGBA,
@@ -91,9 +94,9 @@ static int init_glx(char const *title, bool with_depth, bool with_alpha)
 	return 0;
 }
 
-static void init(char const *title, bool with_depth, bool with_alpha)
+static void init(char const *title, bool with_depth, bool with_alpha, int width, int height)
 {
-	int err = init_glx(title, with_depth, with_alpha);
+	int err = init_glx(title, with_depth, with_alpha, width, height);
 	assert(! err);
 	glShadeModel(GL_FLAT);
 	glDisable(GL_CULL_FACE);
@@ -101,15 +104,15 @@ static void init(char const *title, bool with_depth, bool with_alpha)
 	set_window_size(win_width, win_height);
 }
 
-CAMLprim void gl_init(value with_depth_, value with_alpha_, value title)
+CAMLprim void gl_init(value with_depth_, value with_alpha_, value title, value width, value height)
 {
-	CAMLparam3(with_depth_, with_alpha_, title);
+	CAMLparam5(with_depth_, with_alpha_, title, width, height);
 
 	assert(Tag_val(title) == String_tag);
 	bool with_depth = Is_block(with_depth_) && Val_true == Field(with_depth_, 0);
 	bool with_alpha = Is_block(with_alpha_) && Val_true == Field(with_alpha_, 0);
 	
-	init(String_val(title), with_depth, with_alpha);
+	init(String_val(title), with_depth, with_alpha, Long_val(width), Long_val(height));
 
 	print_error();
 	CAMLreturn0;

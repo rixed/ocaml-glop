@@ -6,8 +6,9 @@ open Algen_intf
 module type GLMATRIX =
 sig
 	include MATRIX
-	val ortho   : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
-	val frustum : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
+	val ortho     : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
+	val frustum   : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
+	val translate : K.t array -> t
 end
 
 module GlMatrix (K : FIELD) : GLMATRIX with module K = K =
@@ -37,6 +38,13 @@ struct
 		m.(2).(0) <- Ke.div (K.add r l) (Ke.sub r l) ;
 		m.(2).(1) <- Ke.div (K.add t b) (Ke.sub t b) ;
 		m.(3).(2) <- Ke.div (Ke.mul twice_n f) (Ke.sub n f) ;
+		m
+	let translate v =
+		let v' = Array.init 3 (fun i -> if i < Array.length v then v.(i) else Ke.zero) in
+		let m = id in
+		m.(3).(0) <- v'.(0) ;
+		m.(3).(1) <- v'.(1) ;
+		m.(3).(2) <- v'.(2) ;
 		m
 end
 

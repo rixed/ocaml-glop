@@ -35,7 +35,6 @@ static void print_error(void)
 
 static void set_window_size(int width, int height)
 {
-	fprintf(stderr, "Windows size set to %d x %d\n", width, height);
 	win_width = width;
 	win_height = height;
 	glViewport(0, 0, width, height);
@@ -44,8 +43,6 @@ static void set_window_size(int width, int height)
 
 static int init_x11(char const *title)
 {
-	fprintf(stderr, "Init X11\n");
-
 	x_display = XOpenDisplay(NULL);
 	if (! x_display) {
 		fprintf(stderr, "cannot connect to X server\n");
@@ -109,10 +106,6 @@ EGLContext egl_context;
 
 static int init_egl(bool with_depth, bool with_alpha)
 {
-	fprintf(stderr, "Init EGL for %sdepth and %salpha\n",
-		with_depth ? "":"no ",
-		with_alpha ? "":"no ");
-
 	egl_display = eglGetDisplay((EGLNativeDisplayType)x_display);
 	if (egl_display == EGL_NO_DISPLAY) {
 		fprintf(stderr, "Got no EGL display.\n");
@@ -182,7 +175,6 @@ CAMLprim void gles_init(value with_depth_, value with_alpha_, value title)
 {
 	CAMLparam3(with_depth_, with_alpha_, title);
 
-	fprintf(stderr, "Glop init\n");
 	assert(Tag_val(title) == String_tag);
 	bool with_depth = Is_block(with_depth_) && Val_true == Field(with_depth_, 0);
 	bool with_alpha = Is_block(with_alpha_) && Val_true == Field(with_alpha_, 0);
@@ -218,7 +210,6 @@ static value clic_of(int px, int py)
 
 	GLfixed const x = ((int_least32_t)(px*2 - win_width)  << 16) / win_width;
 	GLfixed const y = ((int_least32_t)(win_height - py*2) << 16) / win_height;
-	fprintf(stderr, "Clic at (%d, %d) -> %"PRIx", %"PRIx"\n", px, py, PRIX(x), PRIX(y));
 
 	clic = caml_alloc(2, 0);	// Clic (x, y)
 	Store_field(clic, 0, Val_int(x));
@@ -234,8 +225,6 @@ static value resize_of(int width, int height)
 {
 	CAMLparam0();
 	CAMLlocal4(resize, w, h, ret);
-
-	fprintf(stderr, "Resize to (%d, %d)\n", width, height);
 
 	resize = caml_alloc(2, 0);	// Resize (w, h)
 	w = Val_long(width);
@@ -258,7 +247,6 @@ static value next_event(bool wait)
 		if (xev.type == MotionNotify) {
 			return clic_of(xev.xmotion.x, xev.xmotion.y);
 		} else if (xev.type == KeyPress) {
-			fprintf(stderr, "Ignoring key press\n");
 		} else if (xev.type == ButtonPress) {
 			return clic_of(xev.xbutton.x, xev.xbutton.y);
 		} else if (xev.type == Expose) {
@@ -275,7 +263,6 @@ static value next_event(bool wait)
 
 CAMLprim value gles_next_event(value wait)
 {
-	fprintf(stderr, "Next event...\n");
 	return next_event(Bool_val(wait));
 }
 
@@ -491,7 +478,6 @@ CAMLprim void gles_render(value render_type, value vertices, value color_specs)
 
 	if (nb_colors > 0) assert(nb_colors == nb_vertices);
 	
-	fprintf(stderr, "Rendering with %d vertices, type %d\n", nb_vertices, Int_val(render_type));
 	GLenum const mode = glmode_of_render_type(Int_val(render_type));
 	glDrawArrays(mode, 0, nb_vertices);
 

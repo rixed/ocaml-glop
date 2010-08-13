@@ -33,6 +33,15 @@ static void print_error(void)
 	fprintf(stderr, "GLError: %d\n", err);
 }
 
+static void set_window_size(int width, int height)
+{
+	fprintf(stderr, "Windows size set to %d x %d\n", width, height);
+	win_width = width;
+	win_height = height;
+	glViewport(0, 0, width, height);
+	print_error();
+}
+
 static int init_x11(char const *title)
 {
 	fprintf(stderr, "Init X11\n");
@@ -157,14 +166,16 @@ static int init_egl(bool with_depth, bool with_alpha)
 	return 0;
 }
 
-static void resize_window(int width, int height);	// TODO remove this call
 static void init(char const *title, bool with_depth, bool with_alpha)
 {
 	int err = init_x11(title);
 	assert(! err);
 	err = init_egl(with_depth, with_alpha);
 	assert(! err);
-	resize_window(win_width, win_height);
+	glShadeModel(GL_FLAT);
+	glDisable(GL_CULL_FACE);
+	glDisable(GL_DEPTH_TEST);
+	set_window_size(win_width, win_height);
 }
 
 CAMLprim void gles_init(value with_depth_, value with_alpha_, value title)
@@ -200,19 +211,6 @@ CAMLprim void gles_exit(void)
  * Events
  */
 
-static void resize_window(int width, int height)
-{
-	fprintf(stderr, "Windows size set to %d x %d\n", width, height);
-	win_width = width;
-	win_height = height;
-
-	// FIXME: better call a user defined callback
-	glViewport(0, 0, width, height);
-	glShadeModel(GL_FLAT);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-}
-
 static value clic_of(int px, int py)
 {
 	CAMLparam0();
@@ -232,6 +230,25 @@ static value clic_of(int px, int py)
 	CAMLreturn(ret);
 }
 
+static value resize_of(int width, int height)
+{
+	CAMLparam0();
+	CAMLlocal4(resize, w, h, ret);
+
+	fprintf(stderr, "Resize to (%d, %d)\n", width, height);
+
+	resize = caml_alloc(2, 0);	// Resize (w, h)
+	w = Val_long(width);
+	h = Val_long(height);
+	Store_field(resize, 0, w);
+	Store_field(resize, 1, h);
+
+	ret = caml_alloc(1, 0);	// Some...
+	Store_field(ret, 0, resize);
+
+	CAMLreturn(ret);
+}
+
 static value next_event(bool wait)
 {
 	while (wait || XPending(x_display)) {
@@ -244,8 +261,12 @@ static value next_event(bool wait)
 			fprintf(stderr, "Ignoring key press\n");
 		} else if (xev.type == ButtonPress) {
 			return clic_of(xev.xbutton.x, xev.xbutton.y);
-		} else if (xev.type == ResizeRequest) {
-			resize_window(xev.xresizerequest.width, xev.xresizerequest.height);
+		} else if (xev.type == Expose) {
+			set_window_size(xev.xexpose.width, xev.xexpose.height);
+			return resize_of(xev.xexpose.width, xev.xexpose.height);
+		} else if (xev.type == ConfigureNotify) {
+			set_window_size(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
+			return resize_of(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
 		}
 	}
 

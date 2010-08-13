@@ -11,8 +11,6 @@ ML_SOURCES = open_close.ml
 include ../make.common
 
 # Common rules
-.SUFFIXES: .ml .mli .cmo .cmi .cmx .opt .byte
-
 .cmo.byte:
 	$(OCAMLC)   -o $@ -package "$(REQUIRES)" -linkpkg $(OCAMLFLAGS) $^
 

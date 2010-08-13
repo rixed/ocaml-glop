@@ -16,6 +16,7 @@ struct
 	module MDim : CONF_INT = struct let v = 4 end
 	include ExtendedMatrix (Matrix (K) (MDim) (MDim))
 	let ortho l r b t n f =
+		Format.printf "Ortho from %a to %a, %a to %a@." K.print l K.print r K.print b K.print t;
 		let two = K.add K.one K.one in
 		let m = id in
 		m.(0).(0) <- Ke.div two (Ke.sub r l) ;
@@ -47,13 +48,12 @@ sig
 
 	(** Init *)
 
-	(* TODO: pass a callback called whenever the window size change *)
 	val init : ?depth:bool -> ?alpha:bool -> string -> unit
 	val exit : unit -> unit
 
 	(** Events *)
 
-	type event = Clic of (int * int)
+	type event = Clic of int * int | Resize of int * int
 
 	val next_event : bool -> event option
 
@@ -94,5 +94,17 @@ end
 module type GLOP =
 sig
 	include GLOPBASE
+
 	val vertex_array_init : int -> (int -> V.t) -> vertex_array
+
+	val set_projection_to_winsize : K.t -> K.t -> int -> int -> unit
+	(** Helper function to reset the projection matrix to maintain constant aspect ratio of 1
+	 * after the window is resized.
+	 * [set_projection_to_winsize n f w h] sets the projection matrix so that the smaller
+	 * dimension of the window ranges from -1. to +1, while z ranges from [n] to [f],
+	 * when the window width is [w] and height is [h]. *)
+	
+	val next_event_with_resize : bool -> K.t -> K.t -> event option
+	(** Same as [next_event] but automatically handle resize event with
+	 * [set_projection_to_winsize]. *)
 end

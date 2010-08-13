@@ -33,10 +33,11 @@ let main =
 	let z_near, z_far = K.of_float 0.5, K.of_float 5. in
 	
 	let rec frame_loop () =
-		frame 30 ;
 		match next_event_with_resize true z_near z_far with
-			| Some (Clic _) -> ()
-			| _ -> frame_loop () in
+		| Some (Clic _) -> ()
+		| _ ->
+			frame 30 ;
+			frame_loop () in
 	frame_loop () ;
 
 	exit ()

@@ -32,15 +32,16 @@ let main =
 	let z_near, z_far = K.of_float 0.5, K.of_float 5. in
 	
 	let rec frame_loop () =
-		clear ~color:black () ;
-		let d = Ke.half K.one in
-		render Triangle_fans (square (K.neg d)) (Uniq red) ;
-		render Triangle_fans (square K.zero) (Uniq green) ;
-		render Triangle_fans (square d) (Uniq blue) ;
-		swap_buffers () ;
 		match next_event_with_resize true z_near z_far with
-			| Some (Clic _) -> ()
-			| _ -> frame_loop () in
+		| Some (Clic _) -> ()
+		| _ ->
+			clear ~color:black () ;
+			let d = Ke.half K.one in
+			render Triangle_fans (square (K.neg d)) (Uniq red) ;
+			render Triangle_fans (square K.zero) (Uniq green) ;
+			render Triangle_fans (square d) (Uniq blue) ;
+			swap_buffers () ;
+			frame_loop () in
 	frame_loop () ;
 	exit ()
 

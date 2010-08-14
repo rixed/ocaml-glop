@@ -183,8 +183,9 @@ static value next_event(bool wait)
 		} else if (xev.type == ButtonPress) {
 			return clic_of(xev.xbutton.x, xev.xbutton.y);
 		} else if (xev.type == Expose) {
-			set_window_size(xev.xexpose.width, xev.xexpose.height);
-			return resize_of(xev.xexpose.width, xev.xexpose.height);
+			// We have the size of the exposed area only
+			set_window_size(win_width, win_height);
+			return resize_of(win_width, win_height);
 		} else if (xev.type == ConfigureNotify) {
 			set_window_size(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
 			return resize_of(xev.xconfigurerequest.width, xev.xconfigurerequest.height);

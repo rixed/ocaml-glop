@@ -16,3 +16,4 @@ _build
 glop_base.ml
 core
 cscope.out
+make.conf

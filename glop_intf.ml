@@ -8,7 +8,8 @@ sig
 	include MATRIX
 	val ortho     : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
 	val frustum   : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
-	val translate : K.t array -> t
+	val translate : K.t -> K.t -> K.t -> t
+	val scale     : K.t -> K.t -> K.t -> t
 end
 
 module GlMatrix (K : FIELD) : GLMATRIX with module K = K =
@@ -16,36 +17,38 @@ struct
 	module Ke = ExtendedField (K)
 	module MDim : CONF_INT = struct let v = 4 end
 	include ExtendedMatrix (Matrix (K) (MDim) (MDim))
+
 	let ortho l r b t n f =
-		Format.printf "Ortho from %a to %a, %a to %a@." K.print l K.print r K.print b K.print t;
-		let two = K.add K.one K.one in
-		let m = id in
-		m.(0).(0) <- Ke.div two (Ke.sub r l) ;
-		m.(1).(1) <- Ke.div two (Ke.sub t b) ;
-		m.(2).(2) <- K.neg (Ke.div two (Ke.sub f n)) ;
-		m.(3).(0) <- K.neg (Ke.div (K.add r l) (Ke.sub r l)) ;
-		m.(3).(1) <- K.neg (Ke.div (K.add t b) (Ke.sub t b)) ;
-		m.(3).(2) <- K.neg (Ke.div (K.add f n) (Ke.sub f n)) ;
-		m
+		let two = K.add K.one K.one in [|
+			[| Ke.div two (Ke.sub r l) ; Ke.zero ; Ke.zero ; Ke.zero |] ;
+			[| Ke.zero ; Ke.div two (Ke.sub t b) ; Ke.zero ; Ke.zero |] ;
+			[| Ke.zero ; Ke.zero ; K.neg (Ke.div two (Ke.sub f n)) ; Ke.zero |] ;
+			[| K.neg (Ke.div (K.add r l) (Ke.sub r l)) ; K.neg (Ke.div (K.add t b) (Ke.sub t b)) ;
+			   K.neg (Ke.div (K.add f n) (Ke.sub f n)) ; Ke.one |]
+		|]
+
 	let frustum l r b t n f =
-		let twice_n = Ke.double n in
-		let m = id in
-		m.(0).(0) <- Ke.div twice_n (Ke.sub r l) ;
-		m.(1).(1) <- Ke.div twice_n (Ke.sub t b) ;
-		m.(2).(2) <- Ke.div (K.add f n) (Ke.sub n f) ;
-		m.(3).(3) <- Ke.zero ;
-		m.(2).(3) <- Ke.neg K.one ;
-		m.(2).(0) <- Ke.div (K.add r l) (Ke.sub r l) ;
-		m.(2).(1) <- Ke.div (K.add t b) (Ke.sub t b) ;
-		m.(3).(2) <- Ke.div (Ke.mul twice_n f) (Ke.sub n f) ;
-		m
-	let translate v =
-		let v' = Array.init 3 (fun i -> if i < Array.length v then v.(i) else Ke.zero) in
-		let m = id in
-		m.(3).(0) <- v'.(0) ;
-		m.(3).(1) <- v'.(1) ;
-		m.(3).(2) <- v'.(2) ;
-		m
+		let twice_n = Ke.double n in [|
+			[| Ke.div twice_n (Ke.sub r l) ; Ke.zero ; Ke.zero ; Ke.zero |] ;
+			[| Ke.zero ; Ke.div twice_n (Ke.sub t b) ; Ke.zero ; Ke.zero |] ;
+			[| Ke.div (K.add r l) (Ke.sub r l) ; Ke.div (K.add t b) (Ke.sub t b) ;
+			   Ke.div (K.add f n) (Ke.sub n f) ; Ke.neg K.one |] ;
+			[| Ke.zero ; Ke.zero ; Ke.div (Ke.mul twice_n f) (Ke.sub n f) ; Ke.zero |] ;
+		|]
+
+	let coord c x y z t = match c with 0 -> x | 1 -> y | 2 -> z | _ -> t
+
+	let translate x y z =
+		init (fun c r ->
+			if c = 3 then coord r x y z K.one
+			else (
+				if c = r then Ke.one else Ke.zero
+			))
+
+	let scale x y z =
+		init (fun c r ->
+			if c <> r then Ke.zero else
+			coord r x y z K.one)
 end
 
 module type GLOPBASE =

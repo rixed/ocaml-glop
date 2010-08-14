@@ -45,7 +45,7 @@ static int init_x11(char const *title, int width, int height)
 {
 	x_display = XOpenDisplay(NULL);
 	if (! x_display) {
-		fprintf(stderr, "cannot connect to X server\n");
+		fprintf(stderr, "Cannot connect to X server\n");
 		return -1;
 	}
 
@@ -55,7 +55,7 @@ static int init_x11(char const *title, int width, int height)
 	Window root = DefaultRootWindow(x_display);
 
 	XSetWindowAttributes swa = {
-		.event_mask = ExposureMask | /*KeyPressMask |*/ ButtonPressMask | ResizeRedirectMask,
+		.event_mask = ExposureMask | /*KeyPressMask |*/ ButtonPressMask /*| ResizeRedirectMask*/,
 	};
 
 	x_win = XCreateWindow(x_display, root,
@@ -174,7 +174,7 @@ static void init(char const *title, bool with_depth, bool with_alpha, int width,
 	set_window_size(win_width, win_height);
 }
 
-CAMLprim void gles_init(value with_depth_, value with_alpha_, value title, width, height)
+CAMLprim void gles_init(value with_depth_, value with_alpha_, value title, value width, value height)
 {
 	CAMLparam5(with_depth_, with_alpha_, title, width, height);
 
@@ -229,7 +229,7 @@ static value resize_of(int width, int height)
 	CAMLparam0();
 	CAMLlocal4(resize, w, h, ret);
 
-	resize = caml_alloc(2, 0);	// Resize (w, h)
+	resize = caml_alloc(2, 1);	// Resize (w, h)
 	w = Val_long(width);
 	h = Val_long(height);
 	Store_field(resize, 0, w);
@@ -367,6 +367,19 @@ static void load_vector(GLfixed *m, value vector)
 	CAMLreturn0;
 }
 
+#if 0
+static void print_arr(GLfixed *arr_, unsigned vec_len, unsigned nb_vecs)
+{
+	int (*arr)[vec_len] = (void*)arr_;
+	for (unsigned v = 0; v < nb_vecs ; v++) {
+		fprintf(stderr, "V[%u] = { %"PRIx", %"PRIx", %"PRIx", %"PRIx" }\n",
+			v, PRIX(arr[v][0]), PRIX(arr[v][1]),
+			vec_len > 2 ? PRIX(arr[v][2]) : PRIX(0),
+			vec_len > 3 ? PRIX(arr[v][3]) : PRIX(0));
+	}
+}
+#endif
+
 static void load_matrix(value matrix)
 {
 	CAMLparam1(matrix);
@@ -449,13 +462,6 @@ CAMLprim void gles_render(value render_type, value vertices, value color_specs)
 	nb_vertices = vertices_arr->dim[0];
 	glVertexPointer(vertices_arr->dim[1], GL_FIXED, 0, vertices_arr->data);
 	glEnableClientState(GL_VERTEX_ARRAY);
-/*	int (*arr)[vertices_arr->dim[1]] = vertices_arr->data;
-	for (int v = 0; v < nb_vertices ; v++) {
-		fprintf(stderr, "V[%d] = { %"PRIx", %"PRIx", %"PRIx", %"PRIx" }\n",
-			v, PRIX(arr[v][0]), PRIX(arr[v][1]),
-			vertices_arr->dim[1] > 2 ? PRIX(arr[v][2]) : PRIX(0),
-			vertices_arr->dim[1] > 3 ? PRIX(arr[v][3]) : PRIX(0));
-	}*/
 
 	// colors
 	if (Tag_val(color_specs) == 0) {	// Array

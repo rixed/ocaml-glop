@@ -1,3 +1,5 @@
+OCAMLPATH = ..
+
 ifdef GLES
 GL_LIBS=-cclib -lEGL -cclib -lX11 -cclib -lGLES_CM
 else

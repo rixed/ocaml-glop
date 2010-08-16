@@ -60,7 +60,7 @@ check: $(NAME).cma $(NAME).cmxa
 clean-spec:
 	@make -C tests clean
 
-distclean:
-	@rm -f glop_base.ml
+distclean: clean
+	@rm -f glop_base.ml make.conf
 
 include .depend

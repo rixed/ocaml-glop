@@ -8,7 +8,7 @@ struct
 	module M = GlMatrix (K)
 	module V = ExtendedVector (Vector (K) (Dim))
 
-    type event = Clic of int * int | Resize of int * int
+    type event = Clic of int * int * int * int | Resize of int * int
     type color = K.t * K.t * K.t * K.t
     type vertex_array = (nativeint, Bigarray.nativeint_elt, Bigarray.c_layout) Bigarray.Array2.t
     type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles

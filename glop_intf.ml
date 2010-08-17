@@ -64,7 +64,8 @@ sig
 
 	(** Events *)
 
-	type event = Clic of int * int | Resize of int * int
+	type event = Clic of int * int * int * int | Resize of int * int
+	(* Clic (c, y, width, height), Resize (width, height) *)
 
 	val next_event : bool -> event option
 

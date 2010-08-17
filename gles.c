@@ -211,12 +211,11 @@ static value clic_of(int px, int py)
 	CAMLparam0();
 	CAMLlocal2(clic, ret);
 
-	GLfixed const x = ((int_least32_t)(px*2 - win_width)  << 16) / win_width;
-	GLfixed const y = ((int_least32_t)(win_height - py*2) << 16) / win_height;
-
-	clic = caml_alloc(2, 0);	// Clic (x, y)
-	Store_field(clic, 0, Val_int(x));
-	Store_field(clic, 1, Val_int(y));
+	clic = caml_alloc(4, 0);	// Clic (x, y)
+	Store_field(clic, 0, Val_int(px));
+	Store_field(clic, 1, Val_int(py));
+	Store_field(clic, 2, Val_int(win_width));
+	Store_field(clic, 3, Val_int(win_height));
 
 	ret = caml_alloc(1, 0);	// Some...
 	Store_field(ret, 0, clic);

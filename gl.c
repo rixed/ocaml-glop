@@ -137,16 +137,13 @@ CAMLprim void gl_exit(void)
 static value clic_of(int px, int py)
 {
 	CAMLparam0();
-	CAMLlocal4(clic, xd, yd, ret);
+	CAMLlocal2(clic, ret);
 
-	GLdouble const x = (double)(px*2 - win_width) / win_width;
-	GLdouble const y = (double)(win_height - py*2) / win_height;
-
-	clic = caml_alloc(2, 0);	// Clic (x, y)
-	xd = caml_copy_double(x);
-	yd = caml_copy_double(y);
-	Store_field(clic, 0, xd);
-	Store_field(clic, 1, yd);
+	clic = caml_alloc(4, 0);	// Clic (x, y, w, h)
+	Store_field(clic, 0, Val_int(px));
+	Store_field(clic, 1, Val_int(py));
+	Store_field(clic, 2, Val_int(win_width));
+	Store_field(clic, 3, Val_int(win_height));
 
 	ret = caml_alloc(1, 0);	// Some...
 	Store_field(ret, 0, clic);
@@ -178,7 +175,7 @@ static value next_event(bool wait)
 		(void)XNextEvent(x_display, &xev);
 
 		if (xev.type == MotionNotify) {
-			return clic_of(xev.xmotion.x, xev.xmotion.y);
+//			return clic_of(xev.xmotion.x, xev.xmotion.y);
 		} else if (xev.type == KeyPress) {
 		} else if (xev.type == ButtonPress) {
 			return clic_of(xev.xbutton.x, xev.xbutton.y);

@@ -6,7 +6,7 @@ OCAMLOPTFLAGS = $(INCS) -w Ae -g
 OCAMLFLAGS    = $(INCS) -w Ae -g
 
 CAMLINCLUDE = $(shell ocamlfind printconf stdlib)
-CPPFLAGS += -I $(CAMLINCLUDE)
+CPPFLAGS += -I $(CAMLINCLUDE) -I .
 CFLAGS += -std=c99 -W -Wall
 
 # Common rules

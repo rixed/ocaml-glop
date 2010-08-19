@@ -1,107 +1,13 @@
-#include <stdlib.h>
-#include <stdio.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
-#include <assert.h>
-#include <X11/Xlib.h>
-#include <X11/Xatom.h>
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-#include <caml/mlvalues.h>
-#include <caml/memory.h>
-#include <caml/alloc.h>
-#include <caml/bigarray.h>
+#include <gl_common.c>
 
 #define PRIx "f"
 #define PRIX(v) ((float)v / 65536.)
-#define sizeof_array(x) (sizeof(x) / sizeof(*x))
-
-static Display *x_display;
-static Window x_win;
-static int win_width, win_height;
 
 /*
  * Init
  */
-
-static void print_error(void)
-{
-	GLenum err = glGetError();
-	if (err == GL_NO_ERROR) return;
-
-	fprintf(stderr, "GLError: %d\n", err);
-}
-
-static void set_window_size(int width, int height)
-{
-	win_width = width;
-	win_height = height;
-	glViewport(0, 0, width, height);
-	print_error();
-}
-
-static int init_x11(char const *title, int width, int height)
-{
-	x_display = XOpenDisplay(NULL);
-	if (! x_display) {
-		fprintf(stderr, "Cannot connect to X server\n");
-		return -1;
-	}
-
-	win_width = width;
-	win_height = height;
-
-	Window root = DefaultRootWindow(x_display);
-
-	XSetWindowAttributes swa = {
-		.event_mask = ExposureMask | /*KeyPressMask |*/ ButtonPressMask /*| ResizeRedirectMask*/,
-	};
-
-	x_win = XCreateWindow(x_display, root,
-		0, 0, win_width, win_height,   0,
-		CopyFromParent, InputOutput,
-		CopyFromParent, CWEventMask,
-		&swa);
-
-	XSetWindowAttributes xattr;
-	Atom atom;
-	static int const one = 1;
-
-	xattr.override_redirect = False;
-	XChangeWindowAttributes(x_display, x_win, CWOverrideRedirect, &xattr);
-
-	atom = XInternAtom (x_display, "_NET_WM_STATE_FULLSCREEN", True);
-	XChangeProperty(x_display, x_win,
-		XInternAtom(x_display, "_NET_WM_STATE", True),
-		XA_ATOM, 32, PropModeReplace,
-		(unsigned char *)&atom, 1);
-
-	XChangeProperty(x_display, x_win,
-		XInternAtom(x_display, "_HILDON_NON_COMPOSITED_WINDOW", True),
-		XA_INTEGER, 32, PropModeReplace,
-		(unsigned char *)&one,  1);
-
-	XMapWindow(x_display, x_win);
-	XStoreName(x_display, x_win, title);
-
-	//// get identifiers for the provided atom name strings
-	Atom wm_state   = XInternAtom(x_display, "_NET_WM_STATE", False);
-	Atom fullscreen = XInternAtom(x_display, "_NET_WM_STATE_FULLSCREEN", False);
-
-	XEvent xev;
-	memset ( &xev, 0, sizeof(xev) );
-
-	xev.type                 = ClientMessage;
-	xev.xclient.window       = x_win;
-	xev.xclient.message_type = wm_state;
-	xev.xclient.format       = 32;
-	xev.xclient.data.l[0]    = 1;
-	xev.xclient.data.l[1]    = fullscreen;
-	XSendEvent(x_display, DefaultRootWindow(x_display), False, SubstructureNotifyMask, &xev);
-
-	return 0;
-}
 
 EGLDisplay egl_display;
 EGLSurface egl_surface;
@@ -162,19 +68,69 @@ static int init_egl(bool with_depth, bool with_alpha)
 	return 0;
 }
 
-static void init(char const *title, bool with_depth, bool with_alpha, int width, int height)
+static int init_x(char const *title, bool with_depth, bool with_alpha, int width, int height)
 {
-	int err = init_x11(title, width, height);
-	assert(! err);
-	err = init_egl(with_depth, with_alpha);
-	assert(! err);
-	glShadeModel(GL_FLAT);
-	glDisable(GL_CULL_FACE);
-	glDisable(GL_DEPTH_TEST);
-	set_window_size(win_width, win_height);
+	x_display = XOpenDisplay(NULL);
+	if (! x_display) {
+		fprintf(stderr, "Cannot connect to X server\n");
+		return -1;
+	}
+
+	win_width = width;
+	win_height = height;
+
+	Window root = DefaultRootWindow(x_display);
+
+	XSetWindowAttributes swa = {
+		.event_mask = ExposureMask | /*KeyPressMask |*/ ButtonPressMask /*| ResizeRedirectMask*/,
+	};
+
+	x_win = XCreateWindow(x_display, root,
+		0, 0, win_width, win_height,   0,
+		CopyFromParent, InputOutput,
+		CopyFromParent, CWEventMask,
+		&swa);
+
+	XSetWindowAttributes xattr;
+	Atom atom;
+	static int const one = 1;
+
+	xattr.override_redirect = False;
+	XChangeWindowAttributes(x_display, x_win, CWOverrideRedirect, &xattr);
+
+	atom = XInternAtom (x_display, "_NET_WM_STATE_FULLSCREEN", True);
+	XChangeProperty(x_display, x_win,
+		XInternAtom(x_display, "_NET_WM_STATE", True),
+		XA_ATOM, 32, PropModeReplace,
+		(unsigned char *)&atom, 1);
+
+	XChangeProperty(x_display, x_win,
+		XInternAtom(x_display, "_HILDON_NON_COMPOSITED_WINDOW", True),
+		XA_INTEGER, 32, PropModeReplace,
+		(unsigned char *)&one,  1);
+
+	XMapWindow(x_display, x_win);
+	XStoreName(x_display, x_win, title);
+
+	//// get identifiers for the provided atom name strings
+	Atom wm_state   = XInternAtom(x_display, "_NET_WM_STATE", False);
+	Atom fullscreen = XInternAtom(x_display, "_NET_WM_STATE_FULLSCREEN", False);
+
+	XEvent xev;
+	memset ( &xev, 0, sizeof(xev) );
+
+	xev.type                 = ClientMessage;
+	xev.xclient.window       = x_win;
+	xev.xclient.message_type = wm_state;
+	xev.xclient.format       = 32;
+	xev.xclient.data.l[0]    = 1;
+	xev.xclient.data.l[1]    = fullscreen;
+	XSendEvent(x_display, DefaultRootWindow(x_display), False, SubstructureNotifyMask, &xev);
+
+	return init_egl(with_depth, with_alpha);
 }
 
-CAMLprim void gles_init(value with_depth_, value with_alpha_, value title, value width, value height)
+CAMLprim void gl_init(value with_depth_, value with_alpha_, value title, value width, value height)
 {
 	CAMLparam5(with_depth_, with_alpha_, title, width, height);
 
@@ -188,7 +144,7 @@ CAMLprim void gles_init(value with_depth_, value with_alpha_, value title, value
 	CAMLreturn0;
 }
 
-CAMLprim void gles_exit(void)
+CAMLprim void gl_exit(void)
 {
 	CAMLparam0();
 
@@ -200,73 +156,6 @@ CAMLprim void gles_exit(void)
 	XCloseDisplay(x_display);
 
 	CAMLreturn0;
-}
-
-/*
- * Events
- */
-
-static value clic_of(int px, int py)
-{
-	CAMLparam0();
-	CAMLlocal2(clic, ret);
-
-	clic = caml_alloc(4, 0);	// Clic (x, y)
-	Store_field(clic, 0, Val_int(px));
-	Store_field(clic, 1, Val_int(py));
-	Store_field(clic, 2, Val_int(win_width));
-	Store_field(clic, 3, Val_int(win_height));
-
-	ret = caml_alloc(1, 0);	// Some...
-	Store_field(ret, 0, clic);
-
-	CAMLreturn(ret);
-}
-
-static value resize_of(int width, int height)
-{
-	CAMLparam0();
-	CAMLlocal4(resize, w, h, ret);
-
-	resize = caml_alloc(2, 1);	// Resize (w, h)
-	w = Val_long(width);
-	h = Val_long(height);
-	Store_field(resize, 0, w);
-	Store_field(resize, 1, h);
-
-	ret = caml_alloc(1, 0);	// Some...
-	Store_field(ret, 0, resize);
-
-	CAMLreturn(ret);
-}
-
-static value next_event(bool wait)
-{
-	while (wait || XPending(x_display)) {
-		XEvent xev;
-		(void)XNextEvent(x_display, &xev);
-
-		if (xev.type == MotionNotify) {
-			return clic_of(xev.xmotion.x, xev.xmotion.y);
-		} else if (xev.type == KeyPress) {
-		} else if (xev.type == ButtonPress) {
-			return clic_of(xev.xbutton.x, xev.xbutton.y);
-		} else if (xev.type == Expose) {
-			// We have the size of the exposed area only
-			set_window_size(win_width, win_height);
-			return resize_of(win_width, win_height);
-		} else if (xev.type == ConfigureNotify) {
-			set_window_size(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
-			return resize_of(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
-		}
-	}
-
-	return Val_int(0);	// None
-}
-
-CAMLprim value gles_next_event(value wait)
-{
-	return next_event(Bool_val(wait));
 }
 
 /*
@@ -312,32 +201,11 @@ static void reset_clear_depth(value depth)
 	CAMLreturn0;
 }
 
-CAMLprim void gles_clear(value color_opt, value depth_opt)
-{
-	GLbitfield mask = 0;
-	CAMLparam2(color_opt, depth_opt);
-
-	if (Is_block(color_opt)) {
-		reset_clear_color(Field(color_opt, 0));
-		mask |= GL_COLOR_BUFFER_BIT;
-	}
-	
-	if (Is_block(depth_opt)) {
-		reset_clear_depth(Field(depth_opt, 0));
-		mask |= GL_DEPTH_BUFFER_BIT;
-	}
-
-	glClear(mask);
-
-	print_error();
-	CAMLreturn0;
-}
-
 /*
  * Buffers
  */
 
-CAMLprim void gles_swap_buffers(void)
+CAMLprim void gl_swap_buffers(void)
 {
 	int res = eglSwapBuffers(egl_display, egl_surface);
 	assert(res == EGL_TRUE);
@@ -366,19 +234,6 @@ static void load_vector(GLfixed *m, value vector)
 	CAMLreturn0;
 }
 
-#if 0
-static void print_arr(GLfixed *arr_, unsigned vec_len, unsigned nb_vecs)
-{
-	int (*arr)[vec_len] = (void*)arr_;
-	for (unsigned v = 0; v < nb_vecs ; v++) {
-		fprintf(stderr, "V[%u] = { %"PRIx", %"PRIx", %"PRIx", %"PRIx" }\n",
-			v, PRIX(arr[v][0]), PRIX(arr[v][1]),
-			vec_len > 2 ? PRIX(arr[v][2]) : PRIX(0),
-			vec_len > 3 ? PRIX(arr[v][3]) : PRIX(0));
-	}
-}
-#endif
-
 static void load_matrix(value matrix)
 {
 	CAMLparam1(matrix);
@@ -399,30 +254,10 @@ static void load_matrix(value matrix)
 	CAMLreturn0;
 }
 
-CAMLprim void gles_set_projection(value matrix)
-{
-	CAMLparam1(matrix);
-
-	glMatrixMode(GL_PROJECTION);
-	load_matrix(matrix);
-
-	CAMLreturn0;
-}
-
-CAMLprim void gles_set_modelview(value matrix)
-{
-	CAMLparam1(matrix);
-
-	glMatrixMode(GL_MODELVIEW);
-	load_matrix(matrix);
-
-	CAMLreturn0;
-}
-
-CAMLprim void gles_set_depth_range(value near, value far)
+CAMLprim void gl_set_depth_range(value near, value far)
 {
 	CAMLparam2(near, far);
-	assert(Is_long(near));
+	assert(Is_long(near));	// FIXME: seams bogus, should be nativeints
 	assert(Is_long(far));
 
 	glDepthRangex(Long_val(near), Long_val(far));
@@ -435,17 +270,7 @@ CAMLprim void gles_set_depth_range(value near, value far)
  * Rendering
  */
 
-static GLenum glmode_of_render_type(int t)
-{
-	static GLenum const modes[] = {
-		GL_POINTS, GL_LINE_STRIP, GL_LINE_LOOP, GL_LINES,
-		GL_TRIANGLE_STRIP, GL_TRIANGLE_FAN, GL_TRIANGLES,
-	};
-	assert(t >= 0 && t < (int)sizeof_array(modes));
-	return modes[t];
-}
-
-CAMLprim void gles_render(value render_type, value vertices, value color_specs)
+CAMLprim void gl_render(value render_type, value vertices, value color_specs)
 {
 	CAMLparam3(render_type, vertices, color_specs);
 	CAMLlocal1(colors);

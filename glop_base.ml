@@ -1,16 +1,27 @@
 open Glop_intf
 open Algen_intf
 
-module GlopBase (Dim : CONF_INT) :
-	GLOPBASE with module V.Dim = Dim =
+module type GLOPSPEC =
+sig
+	module Dim : CONF_INT
+	module K : Algen_intf.FIELD
+	type vertex_array
+	val make_vertex_array : int -> vertex_array
+	val vertex_array_set : vertex_array -> int -> K.t array -> unit
+end
+
+module GlopBase
+	(Spec: GLOPSPEC) :
+	GLOPBASE with module V.Dim = Spec.Dim
+	         and module K = Spec.K
+	         and type vertex_array = Spec.vertex_array =
 struct
-	module K = Algen_impl.FloatField
+	include Spec
 	module M = GlMatrix (K)
 	module V = ExtendedVector (Vector (K) (Dim))
 
 	type event = Clic of int * int * int * int | Resize of int * int
 	type color = K.t * K.t * K.t * K.t
-	type vertex_array = (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array2.t
 	type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
 	type color_specs = Array of vertex_array | Uniq of color
 
@@ -20,13 +31,8 @@ struct
 	external clear : ?color:color -> ?depth:K.t -> unit -> unit = "gl_clear"
 	external swap_buffers : unit -> unit = "gl_swap_buffers"
 	external render : render_type -> vertex_array -> color_specs -> unit = "gl_render"
-	let make_vertex_array nbv =
-		Bigarray.Array2.create Bigarray.float64 Bigarray.c_layout nbv (Dim.v)
-	let vertex_array_set arr i vec =
-		Array.iteri (fun c v -> Bigarray.Array2.set arr i c v) vec
 	external set_projection : M.t -> unit = "gl_set_projection"
 	external set_modelview : M.t -> unit = "gl_set_modelview"
 	external set_depth_range : K.t -> K.t -> unit = "gl_set_depth_range"
 end
-
 

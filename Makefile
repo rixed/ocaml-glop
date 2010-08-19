@@ -15,17 +15,17 @@ endif
 
 NAME = glop
 
-ML_SOURCES = glop_intf.ml glop_base.ml glop_impl.ml
+ML_SOURCES = glop_intf.ml glop_spec.ml glop_base.ml glop_impl.ml
 
 ifdef GLES
 C_SOURCES += gles.c
-ML_BASE = glop_base_gles.ml
+ML_BASE = glop_spec_gles.ml
 else
 C_SOURCES += gl.c
-ML_BASE = glop_base_gl.ml
+ML_BASE = glop_spec_gl.ml
 endif
 
-glop_base.ml: $(ML_BASE)
+glop_spec.ml: $(ML_BASE)
 	ln -s $< $@
 
 REQUIRES = bigarray algen
@@ -61,6 +61,6 @@ clean-spec:
 	@make -C tests clean
 
 distclean: clean
-	@rm -f glop_base.ml make.conf
+	@rm -f glop_spec.ml make.conf
 
 include .depend

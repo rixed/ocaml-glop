@@ -34,7 +34,7 @@ end
 module Glop (Dim : CONF_INT) :
 	GLOP with module V.Dim = Dim =
 struct
-	module GB = GlopBase (Dim)
+	module GB = GlopBase (Glop_spec.Spec (Dim))
 	include GB
 	include Extension (GB)
 end

@@ -20,7 +20,9 @@ struct
 	module M = GlMatrix (K)
 	module V = ExtendedVector (Vector (K) (Dim))
 
-	type event = Clic of int * int * int * int | Resize of int * int
+	type event = Clic of int * int * int * int
+	           | Unclic of int * int * int * int
+	           | Resize of int * int
 	type color = K.t * K.t * K.t * K.t
 	type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
 	type color_specs = Array of vertex_array | Uniq of color
@@ -31,8 +33,10 @@ struct
 	external clear : ?color:color -> ?depth:K.t -> unit -> unit = "gl_clear"
 	external swap_buffers : unit -> unit = "gl_swap_buffers"
 	external render : render_type -> vertex_array -> color_specs -> unit = "gl_render"
-	external set_projection : M.t -> unit = "gl_set_projection"
-	external set_modelview : M.t -> unit = "gl_set_modelview"
+	external set_projection  : M.t -> unit = "gl_set_projection"
+	external set_modelview   : M.t -> unit = "gl_set_modelview"
+	external set_viewport    : int -> int -> int -> int -> unit = "gl_set_viewport"
 	external set_depth_range : K.t -> K.t -> unit = "gl_set_depth_range"
+	external window_size     : unit -> int * int = "gl_window_size"
 end
 

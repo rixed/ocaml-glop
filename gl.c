@@ -35,15 +35,11 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
 
 	Window root = RootWindow(x_display, vinfo->screen);
 
-	XSetWindowAttributes swa = {
-		.event_mask = ExposureMask | /*KeyPressMask |*/ ButtonPressMask /*| ResizeRedirectMask*/,
-	};
-
 	x_win = XCreateWindow(x_display, root,
 		0, 0, win_width, win_height, 0,
 		vinfo->depth, InputOutput,
 		/*vinfo->visual*/CopyFromParent, CWEventMask,
-		&swa); 
+		&win_attr);
 
 	XMapWindow(x_display, x_win);
 	XStoreName(x_display, x_win, title);

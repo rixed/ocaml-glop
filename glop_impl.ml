@@ -20,6 +20,7 @@ struct
 			else
 				Ke.one, Ke.div (Ke.of_int h) (Ke.of_int w) in
 		let mat = GB.M.ortho (Ke.neg x) x (Ke.neg y) y z_near z_far in
+		GB.set_viewport 0 0 w h ;
 		GB.set_projection mat
 	
 	let next_event_with_resize wait z_near z_far =

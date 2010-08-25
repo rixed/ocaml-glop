@@ -13,9 +13,17 @@
 
 #define sizeof_array(x) (sizeof(x) / sizeof(*x))
 
+// Some constructor tags
+#define CLIC 0
+#define UNCLIC 1
+#define RESIZE 2
+
 static Display *x_display;
 static Window x_win;
 static int win_width, win_height;
+static XSetWindowAttributes win_attr = {
+	.event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask,
+};
 
 /*
  * Init
@@ -33,8 +41,6 @@ static void set_window_size(int width, int height)
 {
 	win_width = width;
 	win_height = height;
-	glViewport(0, 0, width, height);
-	print_error();
 }
 
 static int init_x(char const *title, bool with_depth, bool with_alpha, int width, int height);
@@ -47,18 +53,20 @@ static void init(char const *title, bool with_depth, bool with_alpha, int width,
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
 	set_window_size(win_width, win_height);
+	glViewport(0, 0, win_width, win_height);
+	print_error();
 }
 
 /*
  * Event
  */
 
-static value clic_of(int px, int py)
+static value _clic_of(int tag, int px, int py)
 {
 	CAMLparam0();
 	CAMLlocal2(clic, ret);
 
-	clic = caml_alloc(4, 0);	// Clic (x, y, w, h)
+	clic = caml_alloc(4, tag);	// Clic (x, y, w, h)
 	Store_field(clic, 0, Val_int(px));
 	Store_field(clic, 1, Val_int(py));
 	Store_field(clic, 2, Val_int(win_width));
@@ -70,12 +78,24 @@ static value clic_of(int px, int py)
 	CAMLreturn(ret);
 }
 
+static value clic_of(int px, int py)
+{
+	fprintf(stderr, "clic at %d,%d\n", px, py);
+	return _clic_of(CLIC, px, py);
+}
+
+static value unclic_of(int px, int py)
+{
+	fprintf(stderr, "unclic at %d,%d\n", px, py);
+	return _clic_of(UNCLIC, px, py);
+}
+
 static value resize_of(int width, int height)
 {
 	CAMLparam0();
 	CAMLlocal4(resize, w, h, ret);
 
-	resize = caml_alloc(2, 1);	// Resize (w, h)
+	resize = caml_alloc(2, RESIZE);	// Resize (w, h)
 	w = Val_long(width);
 	h = Val_long(height);
 	Store_field(resize, 0, w);
@@ -94,10 +114,12 @@ static value next_event(bool wait)
 		(void)XNextEvent(x_display, &xev);
 
 		if (xev.type == MotionNotify) {
-//			return clic_of(xev.xmotion.x, xev.xmotion.y);
+			return clic_of(xev.xmotion.x, xev.xmotion.y);
 		} else if (xev.type == KeyPress) {
 		} else if (xev.type == ButtonPress) {
 			return clic_of(xev.xbutton.x, xev.xbutton.y);
+		} else if (xev.type == ButtonRelease) {
+			return unclic_of(xev.xbutton.x, xev.xbutton.y);
 		} else if (xev.type == Expose) {
 			// We have the size of the exposed area only
 			set_window_size(win_width, win_height);
@@ -181,6 +203,28 @@ CAMLprim void gl_set_modelview(value matrix)
 	load_matrix(matrix);
 
 	CAMLreturn0;
+}
+
+CAMLprim void gl_set_viewport(value x, value y, value width, value height)
+{
+	CAMLparam4(x, y, width, height);
+
+	glViewport(Long_val(x), Long_val(y), Long_val(width), Long_val(height));
+	print_error();
+
+	CAMLreturn0;
+}
+
+CAMLprim value gl_window_size(void)
+{
+	CAMLparam0();
+	CAMLlocal1(ret);
+
+	ret = caml_alloc_tuple(2);
+	Store_field(ret, 0, Val_int(win_width));
+	Store_field(ret, 1, Val_int(win_height));
+
+	CAMLreturn(ret);
 }
 
 /*

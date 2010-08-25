@@ -15,7 +15,7 @@ endif
 
 NAME = glop
 
-ML_SOURCES = glop_intf.ml glop_spec.ml glop_base.ml glop_impl.ml
+ML_SOURCES = glop_intf.ml glop_spec.ml matrix_impl.ml glop_base.ml glop_impl.ml
 
 ifdef GLES
 C_SOURCES += gles.c

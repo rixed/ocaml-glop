@@ -1,5 +1,6 @@
 open Glop_intf
 open Algen_intf
+open Matrix_impl
 
 module type GLOPSPEC =
 sig

@@ -76,13 +76,10 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
 		return -1;
 	}
 
-	win_width = width;
-	win_height = height;
-
 	Window root = DefaultRootWindow(x_display);
 
 	x_win = XCreateWindow(x_display, root,
-		0, 0, win_width, win_height,   0,
+		0, 0, width, height,   0,
 		CopyFromParent, InputOutput,
 		CopyFromParent, CWEventMask,
 		&win_attr);

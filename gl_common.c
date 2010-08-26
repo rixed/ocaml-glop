@@ -22,7 +22,7 @@ static Display *x_display;
 static Window x_win;
 static int win_width, win_height;
 static XSetWindowAttributes win_attr = {
-	.event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask,
+	.event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | StructureNotifyMask,
 };
 
 /*
@@ -37,10 +37,12 @@ static void print_error(void)
 	fprintf(stderr, "GLError: %d\n", err);
 }
 
-static void set_window_size(int width, int height)
+static bool set_window_size(int width, int height)
 {
+	if (width == win_width && height == win_height) return false;
 	win_width = width;
 	win_height = height;
+	return true;
 }
 
 static int init_x(char const *title, bool with_depth, bool with_alpha, int width, int height);
@@ -52,7 +54,7 @@ static void init(char const *title, bool with_depth, bool with_alpha, int width,
 	glShadeModel(GL_FLAT);
 	glDisable(GL_CULL_FACE);
 	glDisable(GL_DEPTH_TEST);
-	set_window_size(win_width, win_height);
+	(void)set_window_size(win_width, win_height);
 	glViewport(0, 0, win_width, win_height);
 	print_error();
 }
@@ -119,12 +121,13 @@ static value next_event(bool wait)
 		} else if (xev.type == ButtonRelease) {
 			return unclic_of(xev.xbutton.x, xev.xbutton.y);
 		} else if (xev.type == Expose) {
-			// We have the size of the exposed area only
-			set_window_size(win_width, win_height);
+			// We have in the event the size of the exposed area only
+			(void)set_window_size(win_width, win_height);
 			return resize_of(win_width, win_height);
 		} else if (xev.type == ConfigureNotify) {
-			set_window_size(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
-			return resize_of(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
+			if (set_window_size(xev.xconfigurerequest.width, xev.xconfigurerequest.height)) {
+				return resize_of(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
+			}
 		}
 	}
 

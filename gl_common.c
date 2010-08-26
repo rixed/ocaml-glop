@@ -80,13 +80,11 @@ static value _clic_of(int tag, int px, int py)
 
 static value clic_of(int px, int py)
 {
-	fprintf(stderr, "clic at %d,%d\n", px, py);
 	return _clic_of(CLIC, px, py);
 }
 
 static value unclic_of(int px, int py)
 {
-	fprintf(stderr, "unclic at %d,%d\n", px, py);
 	return _clic_of(UNCLIC, px, py);
 }
 

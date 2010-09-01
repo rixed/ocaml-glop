@@ -185,6 +185,7 @@ static void print_arr(GLfixed *arr_, unsigned vec_len, unsigned nb_vecs)
 #endif
 
 static void load_matrix(value matrix);
+static void mult_matrix(value matrix);
 
 CAMLprim void gl_set_projection(value matrix)
 {
@@ -204,6 +205,28 @@ CAMLprim void gl_set_modelview(value matrix)
 	load_matrix(matrix);
 
 	CAMLreturn0;
+}
+
+CAMLprim void gl_mult_modelview(value matrix)
+{
+	CAMLparam1(matrix);
+
+	glMatrixMode(GL_MODELVIEW);
+	mult_matrix(matrix);
+
+	CAMLreturn0;
+}
+
+CAMLprim void gl_push_modelview(void)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+}
+
+CAMLprim void gl_pop_modelview(void)
+{
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
 }
 
 CAMLprim void gl_set_viewport(value x, value y, value width, value height)

@@ -153,7 +153,7 @@ static void load_vector(GLdouble *m, value vector)
 	CAMLreturn0;
 }
 
-static void load_matrix(value matrix)
+static void do_with_matrix(value matrix, void (*func)(GLdouble const *m))
 {
 	CAMLparam1(matrix);
 
@@ -167,10 +167,20 @@ static void load_matrix(value matrix)
 		load_vector(&m[col][0], Field(matrix, col));
 	}
 
-	glLoadMatrixd(&m[0][0]);
+	func(&m[0][0]);
 
 	print_error();
 	CAMLreturn0;
+}
+
+static void load_matrix(value matrix)
+{
+	do_with_matrix(matrix, glLoadMatrixd);
+}
+
+static void mult_matrix(value matrix)
+{
+	do_with_matrix(matrix, glMultMatrixd);
 }
 
 CAMLprim void gl_set_depth_range(value near, value far)

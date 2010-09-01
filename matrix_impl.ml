@@ -38,5 +38,15 @@ struct
 		init (fun c r ->
 			if c <> r then Ke.zero else
 			coord r x y z K.one)
+	
+	let rotate x y z a =
+		let c = K.of_float (cos a)
+		and s = K.of_float (sin a) in
+		let c'= Ke.sub K.one c in [|
+			[| Ke.add (Ke.muls [x;x;c']) c ; Ke.add (Ke.muls [y;x;c']) (K.mul z s) ; Ke.sub (Ke.muls [x;z;c']) (K.mul y s) ; K.zero |] ;
+			[| Ke.sub (Ke.muls [x;y;c']) (K.mul z s) ; Ke.add (Ke.muls [y;y;c']) c ; Ke.add (Ke.muls [y;z;c']) (K.mul x s) ; K.zero |] ;
+			[| Ke.add (Ke.muls [x;z;c']) (K.mul y s) ; Ke.sub (Ke.muls [y;z;c']) (K.mul x s) ; Ke.add (Ke.muls [z;z;c']) c ; K.zero |] ;
+			[| K.zero ; K.zero ; K.zero ; K.one |] ;
+		|]
 end
 

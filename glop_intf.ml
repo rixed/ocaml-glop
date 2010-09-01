@@ -10,6 +10,7 @@ sig
 	val frustum   : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
 	val translate : K.t -> K.t -> K.t -> t
 	val scale     : K.t -> K.t -> K.t -> t
+	val rotate    : K.t -> K.t -> K.t -> float -> t
 end
 
 module type GLOPBASE =

@@ -3,7 +3,6 @@ open Glop_intf
 
 module GlMatrix (K : FIELD) : GLMATRIX with module K = K =
 struct
-	module Ke = ExtendedField (K)
 	module MDim : CONF_INT = struct let v = 4 end
 	include ExtendedMatrix (Matrix (K) (MDim) (MDim))
 

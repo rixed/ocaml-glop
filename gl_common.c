@@ -11,6 +11,14 @@
 #include <caml/alloc.h>
 #include <caml/bigarray.h>
 
+#if CAML_VERSION > 31200
+#	include <caml/threads.h>
+#else
+#	include <caml/signals.h>
+#	define caml_release_runtime_system caml_enter_blocking_section
+#	define caml_acquire_runtime_system caml_leave_blocking_section
+#endif
+
 #define sizeof_array(x) (sizeof(x) / sizeof(*x))
 
 // Some constructor tags
@@ -49,6 +57,9 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
 
 static void init(char const *title, bool with_depth, bool with_alpha, int width, int height)
 {
+	if (0 == XInitThreads()) {
+		fprintf(stderr, "Cannot XInitThreads()\n");
+	}
 	int err = init_x(title, with_depth, with_alpha, width, height);
 	assert(! err);
 	glShadeModel(GL_FLAT);
@@ -109,9 +120,13 @@ static value resize_of(int width, int height)
 
 static value next_event(bool wait)
 {
-	while (wait || XPending(x_display)) {
+	int nb_pending = 0;
+	while (wait || 0 < (nb_pending = XPending(x_display))) {
 		XEvent xev;
+
+		if (nb_pending == 0) caml_release_runtime_system();
 		(void)XNextEvent(x_display, &xev);
+		if (nb_pending == 0) caml_acquire_runtime_system();
 
 		if (xev.type == MotionNotify) {
 			return clic_of(xev.xmotion.x, xev.xmotion.y);

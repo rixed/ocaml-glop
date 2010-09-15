@@ -77,6 +77,9 @@ end
 module type GLOP =
 sig
 	include GLOPBASE
+	val get_projection : unit -> M.t
+	val get_modelview  : unit -> M.t
+	val get_viewport   : unit -> (int * int * int * int)
 
 	val vertex_array_init : int -> (int -> V.t) -> vertex_array
 
@@ -90,4 +93,13 @@ sig
 	val next_event_with_resize : bool -> K.t -> K.t -> event option
 	(** Same as [next_event] but automatically handle resize event with
 	 * [set_projection_to_winsize]. *)
+	
+	val unproject : (int * int * int * int) -> M.t -> int -> int -> V.t
+	(** [unproject (x0, y0, width, height) some_matrix x y] returns the
+	 * position of a point that would be projected into [(x, y)] after transformation
+	 * by some_matrix and normalization to the given view size. If some_matrix is
+	 * the projection matrix, then the vector returned is in the camera coordinate
+	 * system, while if it's modelview * projection then the vector returned is in
+	 * the object space. *)
+
 end

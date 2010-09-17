@@ -32,6 +32,7 @@ static int win_width, win_height;
 static XSetWindowAttributes win_attr = {
 	.event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | StructureNotifyMask,
 };
+static bool inited = false;
 
 /*
  * Init
@@ -68,6 +69,7 @@ static void init(char const *title, bool with_depth, bool with_alpha, int width,
 	(void)set_window_size(win_width, win_height);
 	glViewport(0, 0, win_width, win_height);
 	print_error();
+	inited = true;
 }
 
 /*
@@ -120,13 +122,20 @@ static value resize_of(int width, int height)
 
 static value next_event(bool wait)
 {
-	int nb_pending = 0;
-	while (wait || 0 < (nb_pending = XPending(x_display))) {
+	// Typically, the init will be performed by another thread.
+	// No need to protect inited here since OCaml threads are not running concurently.
+	if (! inited) {
+		caml_release_runtime_system();	// yield CPU to other threads
+		caml_acquire_runtime_system();
+		return Val_int(0);
+	}
+
+	while (wait || XPending(x_display) > 0) {
 		XEvent xev;
 
-		if (nb_pending == 0) caml_release_runtime_system();
+		caml_release_runtime_system();
 		(void)XNextEvent(x_display, &xev);
-		if (nb_pending == 0) caml_acquire_runtime_system();
+		caml_acquire_runtime_system();
 
 		if (xev.type == MotionNotify) {
 			return clic_of(xev.xmotion.x, xev.xmotion.y);

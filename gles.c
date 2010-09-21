@@ -133,7 +133,6 @@ CAMLprim void gl_init(value with_depth_, value with_alpha_, value title, value w
 	
 	init(String_val(title), with_depth, with_alpha, Long_val(width), Long_val(height));
 
-	print_error();
 	CAMLreturn0;
 }
 

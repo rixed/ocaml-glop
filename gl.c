@@ -129,8 +129,10 @@ static void reset_clear_depth(value depth)
 
 CAMLprim void gl_swap_buffers(void)
 {
+	caml_release_runtime_system();
 	glXSwapBuffers(x_display, x_win);
 	print_error();
+	caml_acquire_runtime_system();
 }
 
 /*

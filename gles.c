@@ -199,9 +199,11 @@ static void reset_clear_depth(value depth)
 
 CAMLprim void gl_swap_buffers(void)
 {
+	caml_release_runtime_system();
 	int res = eglSwapBuffers(egl_display, egl_surface);
 	assert(res == EGL_TRUE);
 	print_error();
+	caml_acquire_runtime_system();
 }
 
 /*

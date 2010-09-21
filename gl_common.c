@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include <string.h>
 #include <assert.h>
+#include <sys/select.h>
 #include <X11/Xlib.h>
 #include <X11/Xatom.h>
 #include <caml/mlvalues.h>
@@ -120,6 +121,19 @@ static value resize_of(int width, int height)
 	CAMLreturn(ret);
 }
 
+static void wait_event(void)
+{
+	while (0 == XPending(x_display)) {
+		caml_release_runtime_system();
+		int fd = XConnectionNumber(x_display);
+		fd_set readset;
+		FD_ZERO(&readset);
+		FD_SET(fd, &readset);
+		select(fd+1, &readset, 0, 0, NULL);
+		caml_acquire_runtime_system();
+	}
+}
+
 static value next_event(bool wait)
 {
 	// Typically, the init will be performed by another thread.
@@ -133,9 +147,8 @@ static value next_event(bool wait)
 	while (wait || XPending(x_display) > 0) {
 		XEvent xev;
 
-		caml_release_runtime_system();
+		wait_event();
 		(void)XNextEvent(x_display, &xev);
-		caml_acquire_runtime_system();
 
 		if (xev.type == MotionNotify) {
 			return clic_of(xev.xmotion.x, xev.xmotion.y);

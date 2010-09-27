@@ -18,6 +18,7 @@ sig
 	module K : FIELD
 	module M : GLMATRIX with module K = K (** Of size 4x4 *)
 	module V : VECTOR with module K = K	(** Of dimension 2 to 4 *)
+	module C : VECTOR with module K = K	(** Of dimension 3 to 4 *)
 
 	(** Init *)
 
@@ -35,8 +36,7 @@ sig
 
 	(** Clear *)
 
-	type color = K.t * K.t * K.t * K.t
-	val clear : ?color:color -> ?depth:K.t -> unit -> unit
+	val clear : ?color:C.t -> ?depth:K.t -> unit -> unit
 
 	(** Swap buffers *)
 
@@ -54,8 +54,18 @@ sig
 
 	val vertex_array_set : vertex_array -> int -> V.t -> unit
 
+	type color_array
+	(** [color_array] is a bigarray of some sort (floats or nativeints), with 2
+	 * dimensions, the second one being the same as that of C. *)
+
+	val make_color_array : int -> color_array
+	(** [make_color_array len] build an uninitialized color array with room
+	 * for len vectors *)
+
+	val color_array_set : color_array -> int -> C.t -> unit
+
 	type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
-	type color_specs = Array of vertex_array | Uniq of color
+	type color_specs = Array of color_array | Uniq of C.t
 
 	val render : render_type -> vertex_array -> color_specs -> unit
 
@@ -82,6 +92,7 @@ sig
 	val get_viewport   : unit -> (int * int * int * int)
 
 	val vertex_array_init : int -> (int -> V.t) -> vertex_array
+	val color_array_init : int -> (int -> C.t) -> color_array
 
 	val set_projection_to_winsize : K.t -> K.t -> int -> int -> unit
 	(** Helper function to reset the projection matrix to maintain constant aspect ratio of 1

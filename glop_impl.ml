@@ -24,6 +24,13 @@ struct
 		done ;
 		arr
 
+	let color_array_init len f =
+		let arr = GB.make_color_array len in
+		for c = 0 to len-1 do
+			GB.color_array_set arr c (f c)
+		done ;
+		arr
+
 	let set_projection_to_winsize z_near z_far w h =
 		if w > 0 && h > 0 then (
 			let x, y =
@@ -64,18 +71,21 @@ struct
 
 end
 
-module Glop (Dim : CONF_INT) :
-	GLOP with module V.Dim = Dim =
+module Glop (Dim : CONF_INT) (CDim: CONF_INT) :
+	GLOP with module V.Dim = Dim
+	     and module C.Dim = CDim =
 struct
-	module GB = GlopBase (Glop_spec.Spec (Dim))
+	module GB = GlopBase (Glop_spec.Spec (Dim) (CDim))
 	include GB
 	include Extension (GB)
 end
 
 module Dim2D : CONF_INT = struct let v = 2 end
 module Dim3D : CONF_INT = struct let v = 3 end
+module Dim4D : CONF_INT = struct let v = 4 end
 
-module Glop2D = Glop (Dim2D)
-module Glop3D = Glop (Dim3D)
-
+module Glop2D = Glop (Dim2D) (Dim3D)
+module Glop3D = Glop (Dim3D) (Dim3D)
+module Glop2Dalpha = Glop (Dim2D) (Dim4D)
+module Glop3Dalpha = Glop (Dim3D) (Dim4D)
 

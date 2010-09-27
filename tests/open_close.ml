@@ -5,7 +5,7 @@ module Ke = Algen_intf.ExtendedField (K)
 
 let randcol () =
 	let rand1 () = Ke.rand Ke.one in
-	rand1 (), rand1 (), rand1 (), rand1 ()
+	[| rand1 (); rand1 (); rand1 (); rand1 () |]
 
 let randc n =
 	Ke.sub (Ke.rand (Ke.double n)) n

@@ -20,10 +20,10 @@ let square x =
 
 let main =
 	init "color test" 800 480 ;
-	let black = K.zero, K.zero, K.zero, K.one
-	and red   = K.one,  K.zero, K.zero, K.one
-	and green = K.zero, K.one,  K.zero, K.one
-	and blue  = K.zero, K.zero, K.one,  K.one in
+	let black = [| K.zero; K.zero; K.zero; K.one |]
+	and red   = [| K.one;  K.zero; K.zero; K.one |]
+	and green = [| K.zero; K.one;  K.zero; K.one |]
+	and blue  = [| K.zero; K.zero; K.one;  K.one |] in
 	
 	let modelview = Me.id in
 	modelview.(3).(2) <- Ke.half mone ;

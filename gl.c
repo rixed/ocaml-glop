@@ -91,11 +91,15 @@ static void reset_clear_color(value color)
 {
 	CAMLparam1(color);
 	assert(Is_block(color));
-	assert(Wosize_val(color) == 4);
+	assert(Tag_val(color) == Double_array_tag);
+	unsigned const c_dim = Wosize_val(color) / Double_wosize;
+	assert(c_dim == 3 || c_dim == 4);
 	bool changed = false;
 
 	for (unsigned i = 0; i < 4; i++) {
-		GLclampf const c = Double_val(Field(color, i));
+		GLclampf c;
+		if (i < c_dim) c = Double_field(color, i);
+		else c = i < 3 ? 0. : 1.;
 		if (c != clear_color[i]) {
 			changed = true;
 			clear_color[i] = c;
@@ -224,21 +228,30 @@ CAMLprim void gl_render(value render_type, value vertices, value color_specs)
 		assert(Is_block(colors) && Tag_val(colors) == Custom_tag);
 		struct caml_ba_array *colors_arr = Caml_ba_array_val(colors);
 		assert(colors_arr->num_dims == 2);
-		assert(colors_arr->dim[1] == 4);
+		unsigned const c_dim = colors_arr->dim[1];
+		assert(c_dim == 3 || c_dim == 4);
 		nb_colors = colors_arr->dim[0];
-		glColorPointer(colors_arr->dim[1], GL_DOUBLE, 0, colors_arr->data);
+		glColorPointer(c_dim, GL_DOUBLE, 0, colors_arr->data);
 		glEnableClientState(GL_COLOR_ARRAY);
 	} else {
 		assert(Tag_val(color_specs) == 1);
 		colors = Field(color_specs, 0);
-		assert(Wosize_val(colors) == 4);
-		assert(Is_block(Field(colors, 3)));
-		assert(Tag_val(Field(colors, 3)) == Double_tag);
-		glColor4f(
-			Double_val(Field(colors, 0)),
-			Double_val(Field(colors, 1)),
-			Double_val(Field(colors, 2)),
-			Double_val(Field(colors, 3)));
+		unsigned const c_dim = Wosize_val(colors) / Double_wosize;
+		assert(c_dim == 3 || c_dim == 4);
+		assert(Is_block(colors));
+		assert(Tag_val(colors) == Double_array_tag);
+		if (c_dim == 4) {
+			glColor4f(
+				Double_field(colors, 0),
+				Double_field(colors, 1),
+				Double_field(colors, 2),
+				Double_field(colors, 3));
+		} else {
+			glColor3f(
+				Double_field(colors, 0),
+				Double_field(colors, 1),
+				Double_field(colors, 2));
+		}
 		glDisableClientState(GL_COLOR_ARRAY);
 	}
 

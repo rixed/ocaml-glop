@@ -161,11 +161,14 @@ static void reset_clear_color(value color)
 {
 	CAMLparam1(color);
 	assert(Is_block(color));
-	assert(Wosize_val(color) == 4);
+	unsigned const c_dim = Wosize_val(color) / Double_wosize;
+	assert(c_dim == 3 || c_dim == 4);
 	bool changed = false;
 
 	for (unsigned i = 0; i < 4; i++) {
-		GLclampx const c = Nativeint_val(Field(color, i));
+		GLclampx const c;
+		if (i < c_dim) c = Nativeint_val(Field(color, i));
+		else c = i < 3 ? 0 : 0x10000;
 		if (c != clear_color[i]) {
 			changed = true;
 			clear_color[i] = c;
@@ -297,20 +300,29 @@ CAMLprim void gl_render(value render_type, value vertices, value color_specs)
 		assert(Is_block(colors) && Tag_val(colors) == Custom_tag);
 		struct caml_ba_array *colors_arr = Caml_ba_array_val(colors);
 		assert(colors_arr->num_dims == 2);
-		assert(colors_arr->dim[1] == 4);
+		unsigned const c_dim = colors_arr->dim[1];
+		assert(c_dim == 3 || c_dim == 4);
 		nb_colors = colors_arr->dim[0];
-		glColorPointer(colors_arr->dim[1], GL_FIXED, 0, colors_arr->data);
+		glColorPointer(c_dim, GL_FIXED, 0, colors_arr->data);
 		glEnableClientState(GL_COLOR_ARRAY);
 	} else {
 		assert(Tag_val(color_specs) == 1);
 		colors = Field(color_specs, 0);
-		assert(Wosize_val(colors) == 4);
-		assert(Tag_val(Field(colors, 3)) == Custom_tag);
-		glColor4x(
-			Nativeint_val(Field(colors, 0)),
-			Nativeint_val(Field(colors, 1)),
-			Nativeint_val(Field(colors, 2)),
-			Nativeint_val(Field(colors, 3)));
+		unsigned const c_dim = Wosize_val(colors) / Double_wosize;
+		assert(c_dim == 3 || c_dim == 4);
+		assert(Tag_val(Field(colors, 0)) == Custom_tag);
+		if (c_dim == 4) {
+			glColor4x(
+				Nativeint_val(Field(colors, 0)),
+				Nativeint_val(Field(colors, 1)),
+				Nativeint_val(Field(colors, 2)),
+				Nativeint_val(Field(colors, 3)));
+		} else {
+			glColor3x(
+				Nativeint_val(Field(colors, 0)),
+				Nativeint_val(Field(colors, 1)),
+				Nativeint_val(Field(colors, 2)));
+		}
 		glDisableClientState(GL_COLOR_ARRAY);
 	}
 

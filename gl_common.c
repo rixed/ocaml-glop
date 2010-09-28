@@ -234,6 +234,28 @@ CAMLprim void gl_set_projection(value matrix)
 	CAMLreturn0;
 }
 
+CAMLprim void gl_mult_projection(value matrix)
+{
+	CAMLparam1(matrix);
+
+	glMatrixMode(GL_PROJECTION);
+	mult_matrix(matrix);
+
+	CAMLreturn0;
+}
+
+CAMLprim void gl_push_projection(void)
+{
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+}
+
+CAMLprim void gl_pop_projection(void)
+{
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+}
+
 CAMLprim void gl_set_modelview(value matrix)
 {
 	CAMLparam1(matrix);

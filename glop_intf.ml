@@ -72,6 +72,9 @@ sig
 	(** Matrices *)
 
 	val set_projection : M.t -> unit
+	val mult_projection : M.t -> unit
+	val push_projection : unit -> unit
+	val pop_projection  : unit -> unit
 	val set_modelview  : M.t -> unit
 	val mult_modelview : M.t -> unit
 	val push_modelview : unit -> unit

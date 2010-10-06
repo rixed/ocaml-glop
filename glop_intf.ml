@@ -71,18 +71,12 @@ sig
 
 	(** Matrices *)
 
-	val set_projection : M.t -> unit
-	val mult_projection : M.t -> unit
-	val push_projection : unit -> unit
-	val pop_projection  : unit -> unit
-	val set_modelview  : M.t -> unit
-	val mult_modelview : M.t -> unit
-	val push_modelview : unit -> unit
-	val pop_modelview  : unit -> unit
-	val set_viewport   : int -> int -> int -> int -> unit
+	val set_projection  : M.t -> unit
+	val set_modelview   : M.t -> unit
+	val set_viewport    : int -> int -> int -> int -> unit
 	(** [set_viewport x y w h] sets the lower left corner of the viewport
 	 * rectangle to x, y and its size to w, h. *)
-	val window_size    : unit -> int * int
+	val window_size     : unit -> int * int
 
 	val set_depth_range : K.t -> K.t -> unit
 end
@@ -90,9 +84,15 @@ end
 module type GLOP =
 sig
 	include GLOPBASE
-	val get_projection : unit -> M.t
-	val get_modelview  : unit -> M.t
-	val get_viewport   : unit -> (int * int * int * int)
+	val mult_projection : M.t -> unit
+	val push_projection : unit -> unit
+	val pop_projection  : unit -> unit
+	val get_projection  : unit -> M.t
+	val mult_modelview  : M.t -> unit
+	val push_modelview  : unit -> unit
+	val pop_modelview   : unit -> unit
+	val get_modelview   : unit -> M.t
+	val get_viewport    : unit -> (int * int * int * int)
 
 	val vertex_array_init : int -> (int -> V.t) -> vertex_array
 	val color_array_init : int -> (int -> C.t) -> color_array
@@ -108,6 +108,11 @@ sig
 	(** Same as [next_event] but automatically handle resize event with
 	 * [set_projection_to_winsize]. *)
 	
+	val project : V.t -> M.t -> (int * int * int * int) -> (int * int)
+	(** [project some_vector some_matrix (x0, y0, width, height)] returns the
+	 * screen position of some_vector once transformed by some_matrix and scaled
+	 * to viewport. *)
+
 	val unproject : (int * int * int * int) -> M.t -> int -> int -> V.t
 	(** [unproject (x0, y0, width, height) some_matrix x y] returns the
 	 * position of a point that would be projected into [(x, y)] after transformation

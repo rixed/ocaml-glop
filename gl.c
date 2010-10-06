@@ -183,11 +183,6 @@ static void load_matrix(value matrix)
 	do_with_matrix(matrix, glLoadMatrixd);
 }
 
-static void mult_matrix(value matrix)
-{
-	do_with_matrix(matrix, glMultMatrixd);
-}
-
 CAMLprim void gl_set_depth_range(value near, value far)
 {
 	CAMLparam2(near, far);

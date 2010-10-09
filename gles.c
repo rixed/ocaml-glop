@@ -161,12 +161,12 @@ static void reset_clear_color(value color)
 {
 	CAMLparam1(color);
 	assert(Is_block(color));
-	unsigned const c_dim = Wosize_val(color) / Double_wosize;
+	unsigned const c_dim = Wosize_val(color);
 	assert(c_dim == 3 || c_dim == 4);
 	bool changed = false;
 
 	for (unsigned i = 0; i < 4; i++) {
-		GLclampx const c;
+		GLclampx c;
 		if (i < c_dim) c = Nativeint_val(Field(color, i));
 		else c = i < 3 ? 0 : 0x10000;
 		if (c != clear_color[i]) {
@@ -231,7 +231,7 @@ static void load_vector(GLfixed *m, value vector)
 	CAMLreturn0;
 }
 
-static void do_with_matrix(value matrix, void (*func)(GLfixed *m))
+static void do_with_matrix(value matrix, void (*func)(GLfixed const *m))
 {
 	CAMLparam1(matrix);
 
@@ -303,7 +303,7 @@ CAMLprim void gl_render(value render_type, value vertices, value color_specs)
 	} else {
 		assert(Tag_val(color_specs) == 1);
 		colors = Field(color_specs, 0);
-		unsigned const c_dim = Wosize_val(colors) / Double_wosize;
+		unsigned const c_dim = Wosize_val(colors);
 		assert(c_dim == 3 || c_dim == 4);
 		assert(Tag_val(Field(colors, 0)) == Custom_tag);
 		if (c_dim == 4) {
@@ -313,10 +313,11 @@ CAMLprim void gl_render(value render_type, value vertices, value color_specs)
 				Nativeint_val(Field(colors, 2)),
 				Nativeint_val(Field(colors, 3)));
 		} else {
-			glColor3x(
+			glColor4x(
 				Nativeint_val(Field(colors, 0)),
 				Nativeint_val(Field(colors, 1)),
-				Nativeint_val(Field(colors, 2)));
+				Nativeint_val(Field(colors, 2)),
+				0x10000);
 		}
 		glDisableClientState(GL_COLOR_ARRAY);
 	}

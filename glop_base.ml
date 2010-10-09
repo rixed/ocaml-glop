@@ -28,8 +28,9 @@ struct
 	module V = ExtendedVector (Vector (K) (Dim))
 	module C = ExtendedVector (Vector (K) (CDim))
 
-	type event = Clic of int * int * int * int
+	type event = Clic   of int * int * int * int
 	           | Unclic of int * int * int * int
+	           | Drag   of int * int * int * int
 	           | Resize of int * int
 	type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
 	type color_specs = Array of color_array | Uniq of C.t

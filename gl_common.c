@@ -23,9 +23,10 @@
 #define sizeof_array(x) (sizeof(x) / sizeof(*x))
 
 // Some constructor tags
-#define CLIC 0
+#define CLIC   0
 #define UNCLIC 1
-#define RESIZE 2
+#define DRAG   2
+#define RESIZE 3
 
 static Display *x_display;
 static Window x_win;
@@ -104,6 +105,11 @@ static value unclic_of(int px, int py)
 	return _clic_of(UNCLIC, px, py);
 }
 
+static value drag_of(int px, int py)
+{
+	return _clic_of(DRAG, px, py);
+}
+
 static value resize_of(int width, int height)
 {
 	CAMLparam0();
@@ -150,8 +156,8 @@ static value next_event(bool wait)
 		wait_event();
 		(void)XNextEvent(x_display, &xev);
 
-		if (xev.type == MotionNotify) {
-			return clic_of(xev.xmotion.x, xev.xmotion.y);
+		if (xev.type == MotionNotify && (xev.xmotion.state & Button1Mask)) {
+			return drag_of(xev.xmotion.x, xev.xmotion.y);
 		} else if (xev.type == KeyPress) {
 		} else if (xev.type == ButtonPress) {
 			return clic_of(xev.xbutton.x, xev.xbutton.y);

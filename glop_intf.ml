@@ -27,8 +27,9 @@ sig
 
 	(** Events *)
 
-	type event = Clic of int * int * int * int
+	type event = Clic   of int * int * int * int
 	           | Unclic of int * int * int * int
+	           | Drag   of int * int * int * int
 	           | Resize of int * int
 	(* Clic (c, y, width, height), Resize (width, height) *)
 

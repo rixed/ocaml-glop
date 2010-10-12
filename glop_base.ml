@@ -17,16 +17,16 @@ end
 
 module GlopBase
 	(Spec: GLOPSPEC) :
-	GLOPBASE with module V.Dim = Spec.Dim
-	         and module C.Dim = Spec.CDim
-	         and module K = Spec.K
-	         and type vertex_array = Spec.vertex_array
-	         and type color_array = Spec.color_array =
+	CORE_GLOP with module V.Dim = Spec.Dim
+	          and module C.Dim = Spec.CDim
+	          and module K = Spec.K
+	          and type vertex_array = Spec.vertex_array
+	          and type color_array = Spec.color_array =
 struct
 	include Spec
 	module M = GlMatrix (K)
-	module V = ExtendedVector (Vector (K) (Dim))
-	module C = ExtendedVector (Vector (K) (CDim))
+	module V = Algen_vector.Make (K) (Dim)
+	module C = Algen_vector.Make (K) (CDim)
 
 	type event = Clic   of int * int * int * int
 	           | Unclic of int * int * int * int

@@ -2,14 +2,16 @@ open Glop_intf
 open Glop_base
 open Algen_intf
 
-module Extension (GB : GLOPBASE) =
+module Extension (GB : CORE_GLOP) =
 struct
-	module Ke = ExtendedField (GB.K)
-	module Me = ExtendedMatrix (GB.M)
-	module MO = MatrixOps (GB.M) (GB.M)
+	let white = [| GB.K.one  ; GB.K.one  ; GB.K.one  |]
+	let black = [| GB.K.zero ; GB.K.zero ; GB.K.zero |]
+	let red   = [| GB.K.one  ; GB.K.zero ; GB.K.zero |]
+	let green = [| GB.K.zero ; GB.K.one  ; GB.K.zero |]
+	let blue  = [| GB.K.zero ; GB.K.zero ; GB.K.one  |]
 
-	let proj_stack = ref [ Me.id ]
-	let model_stack  = ref [ Me.id ]
+	let proj_stack = ref [ GB.M.id ]
+	let model_stack  = ref [ GB.M.id ]
 	let last_viewport   = ref (0, 0, 0, 0)
 
 	(* Set current matrix to the top of the stack *)
@@ -23,8 +25,8 @@ struct
 	let push_modelview ()  = model_stack := (List.hd !model_stack) :: !model_stack
 	let pop_projection ()  = proj_stack  := List.tl !proj_stack ; set_proj ()
 	let pop_modelview ()   = model_stack := List.tl !model_stack ; set_model ()
-	let mult_projection m  = set_projection (MO.mul (List.hd !proj_stack) m)
-	let mult_modelview m   = set_modelview  (MO.mul (List.hd !model_stack) m)
+	let mult_projection m  = set_projection (GB.M.mul_mat (List.hd !proj_stack) m)
+	let mult_modelview m   = set_modelview  (GB.M.mul_mat (List.hd !model_stack) m)
 	let get_projection ()  = List.hd !proj_stack
 	let get_modelview ()   = List.hd !model_stack
 	
@@ -50,10 +52,10 @@ struct
 		if w > 0 && h > 0 then (
 			let x, y =
 				if w > h then
-					Ke.div (Ke.of_int w) (Ke.of_int h), Ke.one
+					GB.K.div (GB.K.of_int w) (GB.K.of_int h), GB.K.one
 				else
-					Ke.one, Ke.div (Ke.of_int h) (Ke.of_int w) in
-			let mat = GB.M.ortho (Ke.neg x) x (Ke.neg y) y z_near z_far in
+					GB.K.one, GB.K.div (GB.K.of_int h) (GB.K.of_int w) in
+			let mat = GB.M.ortho (GB.K.neg x) x (GB.K.neg y) y z_near z_far in
 			set_projection mat
 		) ;
 		set_viewport 0 0 w h
@@ -70,39 +72,39 @@ struct
 		(* Extend given vector to 4 dimentions *)
 		let vo = Array.init 4 (fun i ->
 			if i < Array.length v then v.(i)
-			else if i = 3 then Ke.one
-			else Ke.zero) in
+			else if i = 3 then GB.K.one
+			else GB.K.zero) in
 		(* mult by transformation to get clip coordinates *)
-		let vc = Me.mul_vec transformation vo in
+		let vc = GB.M.mul_vec transformation vo in
 		(* perspective division to get device coordinate *)
-		let vd = Array.init 3 (fun i -> Ke.div vc.(i) vc.(3)) in
+		let vd = Array.init 3 (fun i -> GB.K.div vc.(i) vc.(3)) in
 		(* then center to viewport *)
 		let half_w = width / 2
 		and half_h = height / 2 in
-		x0 + half_w + (Ke.to_int (Ke.mul (Ke.of_int half_w) vd.(0))),
-		y0 + half_h + (Ke.to_int (Ke.mul (Ke.of_int half_h) vd.(1)))
+		x0 + half_w + (GB.K.to_int (GB.K.mul (GB.K.of_int half_w) vd.(0))),
+		y0 + half_h + (GB.K.to_int (GB.K.mul (GB.K.of_int half_h) vd.(1)))
 
 	let unproject (x0, y0, width, height) transformation xw yw =
 		(* inverse viewport to go from window coordinates to normalized device coordinates *)
 		let nd_from_w win_coord win_start win_size =
 			let w' = (win_coord - win_start) * 2 in
-			Ke.sub (Ke.div (Ke.of_int w') (Ke.of_int win_size)) Ke.one in
+			GB.K.sub (GB.K.div (GB.K.of_int w') (GB.K.of_int win_size)) GB.K.one in
 		let xd = nd_from_w xw x0 width
 		and yd = nd_from_w yw y0 height
-		and zd = Ke.one in
+		and zd = GB.K.one in
 		(* inverse perspective division to get clip coordinates *)
-		let wc = Ke.one in
-		let xc = Ke.mul xd wc
-		and yc = Ke.mul yd wc
-		and zc = Ke.mul zd wc in
+		let wc = GB.K.one in
+		let xc = GB.K.mul xd wc
+		and yc = GB.K.mul yd wc
+		and zc = GB.K.mul zd wc in
 		(* inverse transformation for eye/object coordinates *)
-		let v = Me.inv_mul transformation [| xc ; yc ; zc ; wc |] in
+		let v = GB.M.inv_mul transformation [| xc ; yc ; zc ; wc |] in
 		(* truncate to the firsts V.Dim.v coordinates *)
 		Array.sub v 0 GB.V.Dim.v
 
 end
 
-module Glop (Dim : CONF_INT) (CDim: CONF_INT) :
+module Make (Dim : CONF_INT) (CDim: CONF_INT) :
 	GLOP with module V.Dim = Dim
 	     and module C.Dim = CDim =
 struct
@@ -115,8 +117,8 @@ module Dim2D : CONF_INT = struct let v = 2 end
 module Dim3D : CONF_INT = struct let v = 3 end
 module Dim4D : CONF_INT = struct let v = 4 end
 
-module Glop2D = Glop (Dim2D) (Dim3D)
-module Glop3D = Glop (Dim3D) (Dim3D)
-module Glop2Dalpha = Glop (Dim2D) (Dim4D)
-module Glop3Dalpha = Glop (Dim3D) (Dim4D)
+module Glop2D = Make (Dim2D) (Dim3D)
+module Glop3D = Make (Dim3D) (Dim3D)
+module Glop2Dalpha = Make (Dim2D) (Dim4D)
+module Glop3Dalpha = Make (Dim3D) (Dim4D)
 

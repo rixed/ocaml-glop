@@ -1,21 +1,18 @@
 open Glop_impl.Glop2D
 
-module Me = Algen_intf.ExtendedMatrix (M)
-module Ke = Algen_intf.ExtendedField (K)
-
 let randcol () =
-	let rand1 () = Ke.rand Ke.one in
+	let rand1 () = K.rand K.one in
 	[| rand1 (); rand1 (); rand1 (); rand1 () |]
 
 let randc n =
-	Ke.sub (Ke.rand (Ke.double n)) n
+	K.sub (K.rand (K.double n)) n
 
 let main =
 	Random.self_init () ;
 	
 	let frame nb_vertices =
 		let vx = vertex_array_init nb_vertices
-			(fun _i -> Array.init 2 (fun _c -> randc Ke.one)) in
+			(fun _i -> Array.init 2 (fun _c -> randc K.one)) in
 		clear ~color:(randcol ()) () ;
 		render Triangle_fans vx (Uniq (randcol ())) ;
 		render Line_strip vx (Uniq (randcol ())) ;
@@ -51,9 +48,9 @@ let main =
 	let rec gl_thread () =
 		(* Only the thread that performs the init must call drawing functions *)
 		init "test" 800 480 ;
-		let mone = Ke.neg Ke.one in
-		let modelview = Me.id in
-		modelview.(3).(2) <- Ke.half mone ;
+		let mone = K.neg K.one in
+		let modelview = M.id in
+		modelview.(3).(2) <- K.half mone ;
 		set_modelview modelview ;
 		set_projection (M.ortho mone K.one mone K.one K.zero (K.add K.one K.one)) ;
 		frame_loop () in

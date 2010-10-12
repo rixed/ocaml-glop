@@ -6,14 +6,17 @@ open Algen_intf
 module type GLMATRIX =
 sig
 	include MATRIX
-	val ortho     : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
-	val frustum   : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
-	val translate : K.t -> K.t -> K.t -> t
-	val scale     : K.t -> K.t -> K.t -> t
-	val rotate    : K.t -> K.t -> K.t -> float -> t
+	val ortho      : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
+	val frustum    : K.t -> K.t -> K.t -> K.t -> K.t -> K.t -> t
+	val translate  : K.t -> K.t -> K.t -> t
+	val scale      : K.t -> K.t -> K.t -> t
+	val rotate     : K.t -> K.t -> K.t -> float -> t
+	val transverse : t -> t
+	(* [transverse m] transpose the rotation part of m and inverse its translation part,
+	 * thus inversing m if m is orthonormal. *)
 end
 
-module type GLOPBASE =
+module type CORE_GLOP =
 sig
 	module K : FIELD
 	module M : GLMATRIX with module K = K (** Of size 4x4 *)
@@ -84,7 +87,14 @@ end
 
 module type GLOP =
 sig
-	include GLOPBASE
+	include CORE_GLOP
+
+	val white : C.t
+	val black : C.t
+	val red   : C.t
+	val green : C.t
+	val blue  : C.t
+
 	val mult_projection : M.t -> unit
 	val push_projection : unit -> unit
 	val pop_projection  : unit -> unit
@@ -96,7 +106,7 @@ sig
 	val get_viewport    : unit -> (int * int * int * int)
 
 	val vertex_array_init : int -> (int -> V.t) -> vertex_array
-	val color_array_init : int -> (int -> C.t) -> color_array
+	val color_array_init  : int -> (int -> C.t) -> color_array
 
 	val set_projection_to_winsize : K.t -> K.t -> int -> int -> unit
 	(** Helper function to reset the projection matrix to maintain constant aspect ratio of 1
@@ -121,5 +131,4 @@ sig
 	 * the projection matrix, then the vector returned is in the camera coordinate
 	 * system, while if it's modelview * projection then the vector returned is in
 	 * the object space. *)
-
 end

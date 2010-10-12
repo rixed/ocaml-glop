@@ -148,7 +148,8 @@ static void load_vector(GLdouble *m, value vector)
 	CAMLparam1(vector);
 
 	// vector is a float array of length = 4
-	assert(Is_block(vector) && Tag_val(vector) == Double_array_tag);
+	assert(Is_block(vector));
+	assert(Tag_val(vector) == Double_array_tag);
 	assert(Wosize_val(vector) == 4 * Double_wosize);
 
 	for (unsigned c = 0; c < 4; c++) {

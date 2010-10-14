@@ -15,7 +15,7 @@ endif
 
 NAME = glop
 
-ML_SOURCES = glop_intf.ml glop_spec.ml matrix_impl.ml glop_base.ml glop_impl.ml
+ML_SOURCES = glop_intf.ml glop_spec.ml matrix_impl.ml glop_base.ml glop_impl.ml glop_view.ml
 
 ifdef GLES
 C_SOURCES += gles.c
@@ -28,7 +28,7 @@ endif
 glop_spec.ml: $(ML_BASE)
 	ln -s $< $@
 
-REQUIRES = bigarray algen
+REQUIRES = bricabrac bigarray algen
 
 include make.common
 

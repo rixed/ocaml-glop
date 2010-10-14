@@ -1,5 +1,5 @@
 description = "Wrapper for both OpenGL and OpenGL/ES"
 version = "1"
-requires = "algen bigarray"
+requires = "bricabrac algen bigarray"
 archive(byte) = "glop.cma"
 archive(native) = "glop.cmxa"

@@ -63,4 +63,4 @@ clean-spec:
 distclean: clean
 	@rm -f glop_spec.ml make.conf
 
-include .depend
+-include .depend

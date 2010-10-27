@@ -30,6 +30,8 @@ struct
 
 	type event = Clic   of int * int * int * int
 	           | Unclic of int * int * int * int
+	           | Zoom   of int * int * int * int
+	           | UnZoom of int * int * int * int
 	           | Drag   of int * int * int * int
 	           | Resize of int * int
 	type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles

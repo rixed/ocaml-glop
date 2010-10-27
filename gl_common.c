@@ -25,8 +25,10 @@
 // Some constructor tags
 #define CLIC   0
 #define UNCLIC 1
-#define DRAG   2
-#define RESIZE 3
+#define ZOOM   2
+#define UNZOOM 3
+#define DRAG   4
+#define RESIZE 5
 
 static Display *x_display;
 static Window x_win;
@@ -105,6 +107,16 @@ static value unclic_of(int px, int py)
 	return _clic_of(UNCLIC, px, py);
 }
 
+static value zoom_of(int px, int py)
+{
+	return _clic_of(ZOOM, px, py);
+}
+
+static value unzoom_of(int px, int py)
+{
+	return _clic_of(UNZOOM, px, py);
+}
+
 static value drag_of(int px, int py)
 {
 	return _clic_of(DRAG, px, py);
@@ -160,7 +172,14 @@ static value next_event(bool wait)
 			return drag_of(xev.xmotion.x, xev.xmotion.y);
 		} else if (xev.type == KeyPress) {
 		} else if (xev.type == ButtonPress) {
-			return clic_of(xev.xbutton.x, xev.xbutton.y);
+			switch (xev.xbutton.button) {
+				case Button1: case Button2: case Button3:
+					return clic_of(xev.xbutton.x, xev.xbutton.y);
+				case Button4:
+					return zoom_of(xev.xbutton.x, xev.xbutton.y);
+				case Button5:
+					return unzoom_of(xev.xbutton.x, xev.xbutton.y);
+			}
 		} else if (xev.type == ButtonRelease) {
 			return unclic_of(xev.xbutton.x, xev.xbutton.y);
 		} else if (xev.type == Expose) {

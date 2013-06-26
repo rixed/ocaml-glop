@@ -66,7 +66,7 @@ struct
 		Glop.push_modelview () ;
 		Glop.set_modelview Glop.M.id ;
 		(* start from current transfo = identity matrix
-		 * then mult current transfo by all transverse position from dst to root -> gives
+		 * then mult current transfo by all transverse positions from dst to root -> gives
 		 * the transfo from root to dst *)
 		may dst (compose ignore root_to_viewable);
 		(* then mult this by transfo from root to src, ie all positioners from root to src *)

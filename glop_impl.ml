@@ -113,12 +113,9 @@ struct
 	include Extension (GB)
 end
 
-module Dim2D : CONF_INT = struct let v = 2 end
-module Dim3D : CONF_INT = struct let v = 3 end
-module Dim4D : CONF_INT = struct let v = 4 end
-
-module Glop2D = Make (Dim2D) (Dim3D)
-module Glop3D = Make (Dim3D) (Dim3D)
-module Glop2Dalpha = Make (Dim2D) (Dim4D)
-module Glop3Dalpha = Make (Dim3D) (Dim4D)
+open Algen_impl
+module Glop2D = Make (Dim2) (Dim3)
+module Glop3D = Make (Dim3) (Dim3)
+module Glop2Dalpha = Make (Dim2) (Dim4)
+module Glop3Dalpha = Make (Dim3) (Dim4)
 

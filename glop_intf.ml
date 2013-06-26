@@ -36,7 +36,7 @@ sig
 	           | UnZoom of int * int * int * int
 	           | Drag   of int * int * int * int
 	           | Resize of int * int
-	(* Clic (c, y, width, height), Resize (width, height) *)
+	(* Clic (x, y, width, height), Resize (width, height) *)
 
 	val next_event : bool -> event option
 

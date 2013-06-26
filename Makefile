@@ -1,6 +1,9 @@
 OCAMLPATH = ..
 
-all: glop.cma
+.PHONY: all
+all: byte opt
+
+byte: glop.cma
 opt: glop.cmxa
 
 include make.conf

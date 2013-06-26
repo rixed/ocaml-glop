@@ -1,9 +1,10 @@
+# vim:syntax=make
 OCAMLC     = OCAMLPATH=$(OCAMLPATH) ocamlfind ocamlc -thread
 OCAMLOPT   = OCAMLPATH=$(OCAMLPATH) ocamlfind ocamlopt -thread
 OCAMLDEP   = OCAMLPATH=$(OCAMLPATH) ocamlfind ocamldep
 INCS       =
-OCAMLOPTFLAGS = $(INCS) -w Ae -g
-OCAMLFLAGS    = $(INCS) -w Ae -g
+OCAMLOPTFLAGS = $(INCS) -w Ae -g -annot
+OCAMLFLAGS    = $(INCS) -w Ae -g -annot
 
 CAMLINCLUDE = $(shell ocamlfind printconf stdlib)
 CPPFLAGS += -I $(CAMLINCLUDE) -I .

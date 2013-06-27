@@ -90,6 +90,18 @@ struct
 		Glop.set_modelview Glop.M.id ;
 		aux (root_to_viewable camera)
 
+    (* Once in a drawer we may want to clip some objects.
+     * This function returns the screen corner coordinates according to
+     * current modelview/projection transformations *)
+    let clip_coordinates () =
+        let m = Glop.M.mul_mat (Glop.get_projection ()) (Glop.get_modelview ()) in
+        let _,_,w,h as viewport = Glop.get_viewport () in
+        let p00 = Glop.unproject viewport m 0 0
+        and p10 = Glop.unproject viewport m w 0
+        and p11 = Glop.unproject viewport m w h
+        and p01 = Glop.unproject viewport m 0 h in
+        p00, p10, p11, p01
+
 	(* Some simple positioners : *)
 
 	let identity _ = Glop.M.id

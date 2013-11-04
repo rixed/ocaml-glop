@@ -1,5 +1,5 @@
+open Batteries
 open Glop_intf
-open Bricabrac
 
 module Make (Glop : GLOP) =
 struct
@@ -68,9 +68,9 @@ struct
 		(* start from current transfo = identity matrix
 		 * then mult current transfo by all transverse positions from dst to root -> gives
 		 * the transfo from root to dst *)
-		may dst (compose ignore root_to_viewable);
+		Option.may (ignore % root_to_viewable) dst ;
 		(* then mult this by transfo from root to src, ie all positioners from root to src *)
-		may src viewable_to_root ;
+		Option.may viewable_to_root src ;
 		(* modelview is then :
 		 * (VN->dst) o ... o (root->V1) o (vN->root) o ... o (v1->v2) o (src->v1)
 		 * then read modelview with : 
@@ -157,19 +157,19 @@ struct
 			let ev = Glop.next_event true in
 			(match ev with
 				| Some Glop.Resize (w, h) ->
-					with_mutex new_size_mutex (fun x -> new_size := x) (Some (w, h))
+					BatMutex.synchronize ~lock:new_size_mutex (fun x -> new_size := x) (Some (w, h))
 				| _ -> ()) ;
-			may ev on_event in
+			Option.may on_event ev in
 		let event_thread () =
 			forever handle_event () in
 		let next_frame () =
-			with_mutex new_size_mutex (fun () ->
+			BatMutex.synchronize ~lock:new_size_mutex (fun () ->
 				match !new_size with
 					| Some (w, h) ->
 						Glop.set_projection_to_winsize z_near z_far w h ;
 						new_size := None
 					| _ -> ()) () ;
-			List.iter (apply ()) painters ;
+			List.iter ((|>) ()) painters ;
 			Glop.swap_buffers () in
 		Glop.init title width height ;
 		Glop.set_projection (Glop.M.ortho

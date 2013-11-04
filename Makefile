@@ -31,7 +31,7 @@ endif
 glop_spec.ml: $(ML_BASE)
 	ln -s $< $@
 
-REQUIRES = bricabrac bigarray algen
+REQUIRES = batteries bigarray algen
 
 include make.common
 

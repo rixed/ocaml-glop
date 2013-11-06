@@ -1,6 +1,6 @@
 OCAMLPATH = ..
 
-.PHONY: all
+.PHONY: all clean clear install reinstall uninstall
 all: byte opt
 
 byte: glop.cma
@@ -65,5 +65,8 @@ clean-spec:
 
 distclean: clean
 	@rm -f glop_spec.ml make.conf
+
+clear:
+	find . -type f -\( -name '*.ml' -o -name '*.mli' -\) | xargs sed -i -e 's/[ \t]\+$$//'
 
 -include .depend

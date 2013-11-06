@@ -29,7 +29,7 @@ struct
     module C = Algen_vector.Make (K) (CDim)
 
     type event = Clic   of int * int * int * int
-               | Unclic of int * int * int * int
+               | UnClic of int * int * int * int
                | Zoom   of int * int * int * int
                | UnZoom of int * int * int * int
                | Drag   of int * int * int * int

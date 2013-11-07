@@ -110,14 +110,14 @@ sig
     val vertex_array_init : int -> (int -> V.t) -> vertex_array
     val color_array_init  : int -> (int -> C.t) -> color_array
 
-    val set_projection_to_winsize : K.t -> K.t -> int -> int -> unit
+    val set_projection_to_winsize : (K.t -> K.t -> M.t) -> int -> int -> unit
     (** Helper function to reset the projection matrix to maintain constant aspect ratio of 1
      * after the window is resized.
-     * [set_projection_to_winsize n f w h] sets the projection matrix so that the smaller
-     * dimension of the window ranges from -1. to +1, while z ranges from [n] to [f],
-     * when the window width is [w] and height is [h]. *)
+     * [set_projection_to_winsize get_proj w h] sets the projection matrix to the matrix
+     * returned by [get_proj x y] where [x] and [y] are computed such as the smaller
+     * dimension of the window ranges from -1. to +1, when the window width is [w] and height is [h]. *)
 
-    val next_event_with_resize : bool -> K.t -> K.t -> event option
+    val next_event_with_resize : (K.t -> K.t -> M.t) -> bool -> event option
     (** Same as [next_event] but automatically handle resize event with
      * [set_projection_to_winsize]. *)
 

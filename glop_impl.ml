@@ -1,3 +1,4 @@
+open Batteries
 open Glop_intf
 open Glop_base
 open Algen_intf
@@ -48,23 +49,23 @@ struct
         done ;
         arr
 
-    let set_projection_to_winsize z_near z_far w h =
+    let set_projection_to_winsize get_projection w h =
         if w > 0 && h > 0 then (
             let x, y =
                 if w > h then
                     GB.K.div (GB.K.of_int w) (GB.K.of_int h), GB.K.one
                 else
                     GB.K.one, GB.K.div (GB.K.of_int h) (GB.K.of_int w) in
-            let mat = GB.M.ortho (GB.K.neg x) x (GB.K.neg y) y z_near z_far in
-            set_projection mat
+            get_projection x y |>
+            set_projection
         ) ;
         set_viewport 0 0 w h
 
-    let next_event_with_resize wait z_near z_far =
+    let next_event_with_resize get_projection wait =
         match GB.next_event wait with
         | None -> None
         | Some (GB.Resize (w, h)) as ev ->
-            set_projection_to_winsize z_near z_far w h ;
+            set_projection_to_winsize get_projection w h ;
             ev
         | ev -> ev
 

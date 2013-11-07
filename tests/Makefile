@@ -1,12 +1,10 @@
-OCAMLPATH = ../..
-
 REQUIRES = glop
 
-PROGRAMS = open_close.byte colors.byte
+PROGRAMS = open_close.byte colors.byte showroom.byte
 all: $(PROGRAMS)
 opt: $(PROGRAMS:.byte=.opt)
 
-ML_SOURCES = open_close.ml colors.ml
+ML_SOURCES = open_close.ml colors.ml showroom.ml
 
 include ../make.common
 

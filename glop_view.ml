@@ -149,9 +149,15 @@ struct
         let s = K.of_float (sin a) in
         trans_orientor get_pos (fun () -> c, s) dir
 
-    let display ?(title="View") ?(on_event=ignore) ?(width=800) ?(height=480) painters =
-        let z_near = K.of_float 0.2 in (* FIXME *)
-        let z_far  = K.of_float 1.2 in
+    let get_projection_default l u =
+        let z_near = K.neg K.one and z_far = K.one in
+        M.ortho (K.neg l) l
+                (K.neg u) u
+                z_near z_far
+
+    let display ?depth ?alpha ?(title="View") ?(on_event=ignore)
+                ?(width=800) ?(height=480)
+                ?(get_projection=get_projection_default) painters =
         let new_size_mutex = Mutex.create () in
         let new_size = ref None in
         let handle_event () =
@@ -167,17 +173,69 @@ struct
             BatMutex.synchronize ~lock:new_size_mutex (fun () ->
                 match !new_size with
                     | Some (w, h) ->
-                        set_projection_to_winsize z_near z_far w h ;
+                        set_projection_to_winsize get_projection w h ;
                         new_size := None
                     | _ -> ()) () ;
             List.iter ((|>) ()) painters ;
             swap_buffers () in
-        init title width height ;
-        set_projection (M.ortho
-                            (K.neg K.one) K.one
-                            (K.neg K.one) K.one
-                            (K.neg K.one) K.one) ;
+        init ?depth ?alpha title width height ;
+        set_projection (get_projection K.one K.one) ;
         ignore (Thread.create event_thread ()) ;
         forever next_frame ()
+
+    (* Simple function to display some geometry in a separate window.
+     * The user can rotate/zoom the camera with the mouse and use keyboard
+     * to close the window. *)
+    let showroom ?title ?width ?height painters =
+        let z_near = K.of_float 0.2 and z_far = K.of_float 10.2 in
+        let cam_pos = (* pos of camera in root *)
+            M.translate K.zero K.zero (K.double z_near) in
+        let cam_positioner = function
+            | View_to_parent -> cam_pos
+            | Parent_to_view -> M.transverse cam_pos in
+        let root =
+            make_viewable "root"
+                (fun () ->
+                    clear ~color:black () ;
+                    let o = K.zero and i = K.one
+                    and j = K.neg K.one and a = K.of_float 0.1 (* arrow head size *) in
+                    let to_vertex_array arr =
+                        vertex_array_init (Array.length arr) (Array.get arr) in
+                    (* draw grey background *)
+                    let arr = [| [|i;i|] ; [|j;i|] ;
+                                 [|j;j|] ; [|i;j|] |] |> to_vertex_array in
+                    let grid_bg_color = Array.map K.of_float [|0.5; 0.5; 0.5; 0.3|] in
+                    render Triangle_fans arr (Uniq grid_bg_color) ;
+                    (* axis *)
+                    let axis_color = Array.map K.of_float [|1.; 1.; 1.; 0.6|] in
+                    let arr = [| [|o;K.neg i|] ; [|o;K.sub i a|] ;
+                                 [|K.neg i;o|] ; [|K.sub i a;o|] |] |> to_vertex_array in
+                    render Lines arr (Uniq axis_color) ;
+                    let arr = [| [|i;o|] ; [|K.sub i a; a|] ; [|K.sub i a; K.neg a|] ;
+                                 [|o;i|] ; [|K.neg a; K.sub i a|] ; [|a; K.sub i a|] |] |>
+                              to_vertex_array in
+                    render Triangles arr (Uniq axis_color) ;
+                    (* user things *)
+                    List.iter ((|>) ()) painters)
+                identity in
+        let camera =
+            let nop () = () in
+            make_viewable ~parent:root "camera" nop cam_positioner in
+        let painter () = draw_viewable camera in
+        let on_event = function
+            | Zoom _ ->
+                cam_pos.(3).(2) <- K.sub cam_pos.(3).(2) (K.of_float 0.02) ;
+                Printf.printf "camera height is now %s.\n%!" (K.to_string cam_pos.(3).(2))
+            | UnZoom _ ->
+                cam_pos.(3).(2) <- K.add cam_pos.(3).(2) (K.of_float 0.02) ;
+                Printf.printf "camera height is now %s.\n%!" (K.to_string cam_pos.(3).(2))
+            | Clic _ (* start drag n drop *)
+            | UnClic _ (* stop drag n drop or selection *)
+            | Drag _ (* actual drag *)
+            | Resize _ -> (* resize *)
+                () in
+        let get_projection r u =
+            M.frustum (K.neg r) r (K.neg u) u z_near z_far in
+        display ~depth:true ~alpha:true ?title ~on_event ?width ?height ~get_projection [painter]
 end
 

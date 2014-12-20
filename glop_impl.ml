@@ -1,4 +1,3 @@
-open Batteries
 open Glop_intf
 open Glop_base
 open Algen_intf

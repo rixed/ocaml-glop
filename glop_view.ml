@@ -1,4 +1,3 @@
-open Batteries
 open Glop_intf
 
 module Make (Glop : GLOP) =
@@ -69,9 +68,9 @@ struct
         (* start from current transfo = identity matrix
          * then mult current transfo by all transverse positions from dst to root -> gives
          * the transfo from root to dst *)
-        Option.may (ignore % root_to_viewable) dst ;
+        (match dst with Some d -> root_to_viewable d |> ignore | None -> ()) ;
         (* then mult this by transfo from root to src, ie all positioners from root to src *)
-        Option.may viewable_to_root src ;
+        (match src with Some s -> viewable_to_root s | None -> ()) ;
         (* modelview is then :
          * (VN->dst) o ... o (root->V1) o (vN->root) o ... o (v1->v2) o (src->v1)
          * then read modelview with :
@@ -160,17 +159,27 @@ struct
                 ?(get_projection=get_projection_default) painters =
         let new_size_mutex = Mutex.create () in
         let new_size = ref None in
+        let synchronize l f x =
+            try Mutex.lock l ;
+                let r = f x in
+                Mutex.unlock l ;
+                r
+            with e ->
+                Mutex.unlock l ;
+                raise e in
         let handle_event () =
             let ev = next_event true in
             (match ev with
                 | Some Resize (w, h) ->
-                    BatMutex.synchronize ~lock:new_size_mutex (fun x -> new_size := x) (Some (w, h))
+                    synchronize new_size_mutex (fun x -> new_size := x) (Some (w, h))
                 | _ -> ()) ;
-            Option.may on_event ev in
+            (match ev with Some e -> on_event e | None -> ()) in
+        let forever f x =
+            ignore (while true do f x done) in
         let event_thread () =
             forever handle_event () in
         let next_frame () =
-            BatMutex.synchronize ~lock:new_size_mutex (fun () ->
+            synchronize new_size_mutex (fun () ->
                 match !new_size with
                     | Some (w, h) ->
                         set_projection_to_winsize get_projection w h ;

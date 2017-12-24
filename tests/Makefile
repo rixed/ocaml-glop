@@ -1,3 +1,5 @@
+include ../make.conf
+
 REQUIRES = glop
 
 PROGRAMS = open_close.byte colors.byte showroom.byte

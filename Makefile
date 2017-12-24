@@ -11,9 +11,9 @@ make.conf:
 	echo "#GLES=1" > $@
 
 ifdef GLES
-GL_LIBS=-cclib -lEGL -cclib -lX11 -cclib -lGLES_CM
+GL_LIBS=-ccopt "$(LDFLAGS)" -cclib -lEGL -cclib -lX11 -cclib -lGLES_CM
 else
-GL_LIBS=-cclib -lGL -cclib -lX11
+GL_LIBS=-ccopt "$(LDFLAGS)" -cclib -lGL -cclib -lX11
 endif
 
 NAME = glop

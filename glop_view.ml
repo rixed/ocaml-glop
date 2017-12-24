@@ -154,6 +154,9 @@ struct
                 (K.neg u) u
                 z_near z_far
 
+    let want_exit = ref false
+    let exit () = want_exit := true
+
     let display ?depth ?alpha ?(title="View") ?(on_event=ignore)
                 ?(width=800) ?(height=480)
                 ?(get_projection=get_projection_default) painters =
@@ -190,7 +193,8 @@ struct
         init ?depth ?alpha title width height ;
         set_projection (get_projection K.one K.one) ;
         ignore (Thread.create event_thread ()) ;
-        forever next_frame ()
+        while not !want_exit do next_frame () done ;
+        Glop.exit ()
 
     (* Simple function to display some geometry in a separate window.
      * The user can rotate/zoom the camera with the mouse and use keyboard

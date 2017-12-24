@@ -20,7 +20,7 @@ let main =
         render Line_strip vx (Uniq (randcol ())) ;
         swap_buffers () in
 
-    let on_event = function Clic _ -> exit () | _ -> () in
+    let on_event = function Clic _ -> View.exit () | _ -> () in
     let paint_frame () =
         let modelview = M.id in
         modelview.(3).(2) <- K.half (K.neg K.one);

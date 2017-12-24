@@ -16,7 +16,7 @@ let square x =
     vertex_array_init 4 (fun i -> V.add sq.(i) disp)
 
 let main =
-    let on_event = function Clic _ -> exit () | _ -> () in
+    let on_event = function Clic _ -> View.exit () | _ -> () in
     let paint_colors () =
         let modelview = M.id in
         modelview.(3).(2) <- K.half (K.neg K.one) ;

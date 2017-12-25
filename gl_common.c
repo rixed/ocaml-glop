@@ -168,7 +168,7 @@ static void wait_event(void)
 static value next_event(bool wait)
 {
     // Typically, the init will be performed by another thread.
-    // No need to protect inited here since OCaml threads are not running concurently.
+    // No need to protect inited here since OCaml threads are not running concurrently.
     if (! inited) {
         caml_release_runtime_system();  // yield CPU to other threads
         caml_acquire_runtime_system();

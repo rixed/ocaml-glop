@@ -111,6 +111,7 @@ struct
 end
 
 open Algen_impl
+(* FIXME: when alpha is not requested pass a param to init to disable GL_BLEND *)
 module Glop2D = Make (Dim2) (Dim3)
 module Glop3D = Make (Dim3) (Dim3)
 module Glop2Dalpha = Make (Dim2) (Dim4)

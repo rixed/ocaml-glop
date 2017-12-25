@@ -100,7 +100,8 @@ end
 
 module Make (Dim : CONF_INT) (CDim: CONF_INT) :
     GLOP with module V.Dim = Dim
-         and module C.Dim = CDim =
+         and module C.Dim = CDim
+         and module K = Glop_spec.K =
 struct
     module GB = GlopBase (Glop_spec.Spec (Dim) (CDim))
     include GB

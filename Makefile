@@ -1,7 +1,28 @@
 OCAMLPATH = ..
 
 .PHONY: all clean clear install reinstall uninstall
-all: byte opt
+
+NAME = glop
+
+LIB_SOURCES = \
+	glop_intf.ml glop_spec.ml matrix_impl.ml glop_base.ml glop_impl.ml \
+	glop_view.ml
+
+ifdef GLES
+C_SOURCES += gles.c
+ML_BASE = glop_spec_gles.ml
+else
+C_SOURCES += gl.c
+ML_BASE = glop_spec_gl.ml
+endif
+
+ML_SOURCES = $(LIB_SOURCES)
+
+INSTALL = \
+	$(NAME).cmxa $(LIB_SOURCES:.ml=.cmi) $(LIB_SOURCES:.ml=.cmx) \
+	glop.a libglop.a META
+
+all: $(INSTALL)
 
 byte: glop.cma
 opt: glop.cmxa
@@ -14,18 +35,6 @@ ifdef GLES
 GL_LIBS=-ccopt "$(LDFLAGS)" -cclib -lEGL -cclib -lX11 -cclib -lGLES_CM
 else
 GL_LIBS=-ccopt "$(LDFLAGS)" -cclib -lGL -cclib -lX11
-endif
-
-NAME = glop
-
-ML_SOURCES = glop_intf.ml glop_spec.ml matrix_impl.ml glop_base.ml glop_impl.ml glop_view.ml
-
-ifdef GLES
-C_SOURCES += gles.c
-ML_BASE = glop_spec_gles.ml
-else
-C_SOURCES += gl.c
-ML_BASE = glop_spec_gl.ml
 endif
 
 glop_spec.ml: $(ML_BASE)
@@ -46,25 +55,24 @@ $(NAME).cma: $(ML_OBJS) libglop.a
 $(NAME).cmxa: $(ML_XOBJS) libglop.a
 	$(OCAMLOPT) -a -o $@ -package "$(REQUIRES)" $(OCAMLOPTFLAGS) $(ML_XOBJS) -cclib -lglop $(GL_LIBS)
 
-install: all
-	if test -f $(NAME).cmxa ; then extra="$(NAME).cmxa $(NAME).a" ; fi ; \
-	ocamlfind install $(NAME) *.cmi $(NAME).cma META glop_intf.ml libglop.a $$extra
+install: $(INSTALL)
+	ocamlfind install $(NAME) $^
 
 uninstall:
 	ocamlfind remove $(NAME)
 
 reinstall: uninstall install
 
-check: $(NAME).cma $(NAME).cmxa
-	$(MAKE) -C tests all opt
-	@for t in tests/*.byte tests/*.opt ; do $$t ; done
+check: $(NAME).cmxa
+	$(MAKE) -C tests all
+	@for t in tests/*.opt ; do $$t ; done
 	@echo Ok
 
 clean-spec:
 	$(MAKE) -C tests clean
 
-distclean: clean
-	@rm -f glop_spec.ml make.conf
+distclean-spec:
+	$(RM) glop_spec.ml make.conf
 
 clear:
 	find . -type f -\( -name '*.ml' -o -name '*.mli' -o -name '*.c' -o -name '*.h' -\) | xargs sed -i -e 's/[ \t]\+$$//'

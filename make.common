@@ -28,9 +28,12 @@ ML_OBJS  = $(ML_SOURCES:.ml=.cmo)
 ML_XOBJS = $(ML_SOURCES:.ml=.cmx)
 
 # Clean up
-.PHONY: clean clean-spec
+.PHONY: distclean distclean-spec clean clean-spec
 clean: clean-spec
-	rm -f *.cm[ioxa] *.cmxa *.a *.s *.o *.byte *.opt .depend
+	$(RM) *.cmo *.s .depend
+
+distclean: clean distclean-spec
+	$(RM) *.cm[oxa] *.cmxa *.a *.byte *.opt
 
 # Dependencies
 .depend: $(ML_SOURCES) $(C_SOURCES)

@@ -46,39 +46,35 @@ struct
         viewable
 
     (* Sets the modelview to transform from root to dst, and returns root *)
-    let root_to_viewable dst =
+    let root_to_viewable mult_mat dst =
         let rec to_root pos = match pos.parent with
             | None -> pos
             | Some parent ->
-                mult_modelview (pos.positioner Parent_to_view) ;
+                mult_mat (pos.positioner Parent_to_view) ;
                 to_root parent in
         to_root dst
 
-    let viewable_to_root src =
+    let viewable_to_root mult_mat src =
         let rec prepend_next_view root2src view = match view.parent with
             | None -> root2src
             | Some parent -> prepend_next_view (view::root2src) parent in
         let root2src = prepend_next_view [] src in
-        List.iter (fun view -> mult_modelview (view.positioner View_to_parent)) root2src
+        List.iter (fun view -> mult_mat (view.positioner View_to_parent)) root2src
 
     (* Returns the matrix that transform point coordinates in src to coordinates in dst *)
     let get_transform ?src ?dst () =
-        push_modelview () ;
-        set_modelview M.id ;
+        let m = ref M.id in
+        let mult_mat m' = m := M.mul_mat !m m' in
         (* start from current transfo = identity matrix
          * then mult current transfo by all transverse positions from dst to root -> gives
          * the transfo from root to dst *)
-        (match dst with Some d -> root_to_viewable d |> ignore | None -> ()) ;
+        (match dst with Some d -> root_to_viewable mult_mat d |> ignore | None -> ()) ;
         (* then mult this by transfo from root to src, ie all positioners from root to src *)
-        (match src with Some s -> viewable_to_root s | None -> ()) ;
-        (* modelview is then :
+        (match src with Some s -> viewable_to_root mult_mat s | None -> ()) ;
+        (* m is then :
          * (VN->dst) o ... o (root->V1) o (vN->root) o ... o (v1->v2) o (src->v1)
-         * then read modelview with :
-         * glGetFloatv (GL_MODELVIEW_MATRIX, matrix);
          *)
-        let m = get_modelview () in
-        pop_modelview () ;
-        m
+        !m
 
     let draw_viewable camera =
         let rec aux pos =
@@ -88,7 +84,7 @@ struct
             List.iter aux pos.children ;
             pop_modelview () in
         set_modelview M.id ;
-        aux (root_to_viewable camera)
+        aux (root_to_viewable mult_modelview camera)
 
     (* Once in a drawer we may want to clip some objects.
      * This function returns the screen corner coordinates according to

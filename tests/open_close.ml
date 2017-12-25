@@ -28,4 +28,3 @@ let main =
         frame 30 in
 
     View.display ~title:"test" ~on_event:on_event [paint_frame]
-

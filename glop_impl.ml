@@ -25,8 +25,11 @@ struct
     let get_modelview ()   = List.hd !model_stack
 
     (* For viewport we merely store the current value *)
-    let set_viewport x y w h = last_viewport := (x, y, w, h) ; GB.set_viewport x y w h
-    let get_viewport ()   = !last_viewport
+    let set_viewport x y w h =
+      last_viewport := (x, y, w, h) ;
+      GB.set_viewport x y w h
+
+    let get_viewport () = !last_viewport
 
     let vertex_array_init len f =
         let arr = GB.make_vertex_array len in
@@ -95,7 +98,6 @@ struct
         let v = GB.M.inv_mul transformation [| xc ; yc ; zc ; wc |] in
         (* truncate to the firsts V.Dim.v coordinates *)
         Array.sub v 0 GB.V.Dim.v
-
 end
 
 module Make (Dim : CONF_INT) (CDim: CONF_INT) :
@@ -113,4 +115,3 @@ module Glop2D = Make (Dim2) (Dim3)
 module Glop3D = Make (Dim3) (Dim3)
 module Glop2Dalpha = Make (Dim2) (Dim4)
 module Glop3Dalpha = Make (Dim3) (Dim4)
-

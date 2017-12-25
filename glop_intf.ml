@@ -91,7 +91,7 @@ sig
     val set_projection  : M.t -> unit
     val set_modelview   : M.t -> unit
     val set_viewport    : int -> int -> int -> int -> unit
-    (** [set_viewport x y w h] sets the lower left corner of the viewport
+    (* [set_viewport x y w h] sets the lower left corner of the viewport
      * rectangle to x, y and its size to w, h. *)
     val window_size     : unit -> int * int
 

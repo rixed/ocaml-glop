@@ -5,7 +5,7 @@ struct
     open Glop
     type painter = unit -> unit
 
-    (* A positionner gives the position of a view into its parent.
+    (* A positioner gives the position of a view into its parent.
      * It's thus the transformation from the view to its parent coord system. *)
     type transfo_dir = View_to_parent | Parent_to_view
     type positioner = transfo_dir -> M.t
@@ -156,6 +156,8 @@ struct
     let want_exit = ref false
     let exit () = want_exit := true
 
+    (* Some GL libs have a different GL context per threads, so you
+     * must not call any GL functions in the on_event callback. *)
     let display ?depth ?alpha ?(title="View") ?(on_event=ignore)
                 ?(width=800) ?(height=480)
                 ?(get_projection=get_projection_default) painters =
@@ -250,4 +252,3 @@ struct
             M.frustum (K.neg r) r (K.neg u) u z_near z_far in
         display ~depth:true ~alpha:true ?title ~on_event ?width ?height ~get_projection [painter]
 end
-

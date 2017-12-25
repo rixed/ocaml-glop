@@ -16,7 +16,7 @@ sig
 end
 
 module GlopBase
-    (Spec: GLOPSPEC) :
+    (Spec : GLOPSPEC) :
     CORE_GLOP with module V.Dim = Spec.Dim
               and module C.Dim = Spec.CDim
               and module K = Spec.K
@@ -56,4 +56,3 @@ struct
     external set_depth_range : K.t -> K.t -> unit = "gl_set_depth_range"
     external window_size     : unit -> int * int = "gl_window_size"
 end
-

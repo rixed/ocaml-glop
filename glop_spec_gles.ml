@@ -26,4 +26,3 @@ struct
     let color_array_set arr i vec =
         Array.iteri (fun c v -> Bigarray.Array2.set arr i c v) vec
 end
-

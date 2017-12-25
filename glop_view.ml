@@ -96,11 +96,14 @@ struct
     let clip_coordinates () =
         let m = M.mul_mat (get_projection ()) (get_modelview ()) in
         let _,_,w,h as viewport = get_viewport () in
-        let p00 = unproject viewport m 0 0
-        and p10 = unproject viewport m w 0
-        and p11 = unproject viewport m w h
-        and p01 = unproject viewport m 0 h in
-        p00, p10, p11, p01
+        if w = 0 || h = 0 then
+          V.zero, V.zero, V.zero, V.zero
+        else
+          let p00 = unproject viewport m 0 0
+          and p10 = unproject viewport m w 0
+          and p11 = unproject viewport m w h
+          and p01 = unproject viewport m 0 h in
+          p00, p10, p11, p01
 
     (* Some simple positioners : *)
 

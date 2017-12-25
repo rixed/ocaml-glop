@@ -123,19 +123,6 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
     return init_egl(with_depth, with_alpha);
 }
 
-CAMLprim void gl_init(value with_depth_, value with_alpha_, value title, value width, value height)
-{
-    CAMLparam5(with_depth_, with_alpha_, title, width, height);
-
-    assert(Tag_val(title) == String_tag);
-    bool with_depth = Is_block(with_depth_) && Val_true == Field(with_depth_, 0);
-    bool with_alpha = Is_block(with_alpha_) && Val_true == Field(with_alpha_, 0);
-
-    init(String_val(title), with_depth, with_alpha, Long_val(width), Long_val(height));
-
-    CAMLreturn0;
-}
-
 CAMLprim void gl_exit(void)
 {
     CAMLparam0();

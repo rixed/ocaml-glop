@@ -4,12 +4,6 @@ open Algen_intf
 
 module Extension (GB : CORE_GLOP) =
 struct
-    let white = [| GB.K.one  ; GB.K.one  ; GB.K.one  |]
-    let black = [| GB.K.zero ; GB.K.zero ; GB.K.zero |]
-    let red   = [| GB.K.one  ; GB.K.zero ; GB.K.zero |]
-    let green = [| GB.K.zero ; GB.K.one  ; GB.K.zero |]
-    let blue  = [| GB.K.zero ; GB.K.zero ; GB.K.one  |]
-
     let proj_stack = ref [ GB.M.id ]
     let model_stack  = ref [ GB.M.id ]
     let last_viewport   = ref (0, 0, 0, 0)

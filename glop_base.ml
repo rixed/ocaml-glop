@@ -26,7 +26,14 @@ struct
     include Spec
     module M = GlMatrix (K)
     module V = Algen_vector.Make (K) (Dim)
-    module C = Algen_vector.Make (K) (CDim)
+    module C = struct
+      include Algen_vector.Make (K) (CDim)
+      let white = [| K.one  ; K.one  ; K.one  |]
+      let black = [| K.zero ; K.zero ; K.zero |]
+      let red   = [| K.one  ; K.zero ; K.zero |]
+      let green = [| K.zero ; K.one  ; K.zero |]
+      let blue  = [| K.zero ; K.zero ; K.one  |]
+    end
 
     type event = Clic   of int * int * int * int
                | UnClic of int * int * int * int

@@ -21,10 +21,10 @@ let main =
         let modelview = M.id in
         modelview.(3).(2) <- K.half (K.neg K.one) ;
         set_modelview modelview ;
-        clear ~color:black () ;
+        clear ~color:C.black () ;
         let d = K.half K.one in
-        render Triangle_fans (square (K.neg d)) (Uniq red) ;
-        render Triangle_fans (square K.zero) (Uniq green) ;
-        render Triangle_fans (square d) (Uniq blue) in
+        render Triangle_fans (square (K.neg d)) (Uniq C.red) ;
+        render Triangle_fans (square K.zero) (Uniq C.green) ;
+        render Triangle_fans (square d) (Uniq C.blue) in
     View.display ~title:"colors" ~on_event:on_event [paint_colors]
 

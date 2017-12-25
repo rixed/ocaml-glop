@@ -16,12 +16,23 @@ sig
      * thus inversing m if m is orthonormal. *)
 end
 
+module type COLOR =
+sig
+    include VECTOR
+
+    val white : t
+    val black : t
+    val red   : t
+    val green : t
+    val blue  : t
+end
+
 module type CORE_GLOP =
 sig
     module K : FIELD
-    module M : GLMATRIX with module K = K (** Of size 4x4 *)
-    module V : VECTOR with module K = K (** Of dimension 2 to 4 *)
-    module C : VECTOR with module K = K (** Of dimension 3 to 4 *)
+    module M : GLMATRIX with module K = K (* Of size 4x4 *)
+    module V : VECTOR with module K = K (* Of dimension 2 to 4 *)
+    module C : COLOR with module K = K (* Of dimension 3 or 4 *)
 
     (** Init *)
 
@@ -90,12 +101,6 @@ end
 module type GLOP =
 sig
     include CORE_GLOP
-
-    val white : C.t
-    val black : C.t
-    val red   : C.t
-    val green : C.t
-    val blue  : C.t
 
     val mult_projection : M.t -> unit
     val push_projection : unit -> unit

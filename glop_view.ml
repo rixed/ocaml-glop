@@ -209,7 +209,7 @@ struct
         let root =
             make_viewable "root"
                 (fun () ->
-                    clear ~color:black () ;
+                    clear ~color:C.black () ;
                     let o = K.zero and i = K.one
                     and j = K.neg K.one and a = K.of_float 0.1 (* arrow head size *) in
                     let to_vertex_array arr =

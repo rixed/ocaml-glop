@@ -27,6 +27,8 @@ struct
     module M = GlMatrix (K)
     module V = Algen_vector.Make (K) (Dim)
     module C = struct
+      (* Actually it seems that in gl.c only floats are supported
+       * (see gl_render()) !? *)
       include Algen_vector.Make (K) (CDim)
       let white = [| K.one  ; K.one  ; K.one  |]
       let black = [| K.zero ; K.zero ; K.zero |]

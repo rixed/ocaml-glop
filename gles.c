@@ -1,6 +1,6 @@
 #include <EGL/egl.h>
 #include <GLES/gl.h>
-#include <gl_common.c>
+#include "gl_common.c"
 
 #define PRIx "f"
 #define PRIX(v) ((float)v / 65536.)

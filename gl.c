@@ -1,6 +1,6 @@
 #include <GL/gl.h>
 #include <GL/glx.h>
-#include <gl_common.c>
+#include "gl_common.c"
 
 static GLXContext glx_context;
 

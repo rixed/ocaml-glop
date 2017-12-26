@@ -93,6 +93,9 @@ sig
     val set_viewport    : int -> int -> int -> int -> unit
     (* [set_viewport x y w h] sets the lower left corner of the viewport
      * rectangle to x, y and its size to w, h. *)
+
+    val set_scissor     : int -> int -> int -> int -> unit
+    val disable_scissor : unit -> unit
     val window_size     : unit -> int * int
 
     val set_depth_range : K.t -> K.t -> unit

@@ -53,6 +53,8 @@ struct
     external set_projection  : M.t -> unit = "gl_set_projection"
     external set_modelview   : M.t -> unit = "gl_set_modelview"
     external set_viewport    : int -> int -> int -> int -> unit = "gl_set_viewport"
+    external set_scissor     : int -> int -> int -> int -> unit = "gl_set_scissor"
+    external disable_scissor : unit -> unit = "gl_disable_scissor"
     external set_depth_range : K.t -> K.t -> unit = "gl_set_depth_range"
     external window_size     : unit -> int * int = "gl_window_size"
 end

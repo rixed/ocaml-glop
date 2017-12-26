@@ -291,6 +291,23 @@ CAMLprim void gl_set_viewport(value x, value y, value width, value height)
     CAMLreturn0;
 }
 
+CAMLprim void gl_set_scissor(value x, value y, value width, value height)
+{
+    CAMLparam4(x, y, width, height);
+
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(Long_val(x), Long_val(y), Long_val(width), Long_val(height));
+    print_error();
+
+    CAMLreturn0;
+}
+
+CAMLprim void gl_disable_scissor(void)
+{
+    glDisable(GL_SCISSOR_TEST);
+    print_error();
+}
+
 CAMLprim value gl_window_size(void)
 {
     CAMLparam0();

@@ -68,6 +68,7 @@ static void init(char const *title, bool with_depth, bool with_alpha, int width,
     int err = init_x(title, with_depth, with_alpha, width, height);
     assert(! err);
     glShadeModel(GL_FLAT);
+    glEnable(GL_MULTISAMPLE);
     glDisable(GL_CULL_FACE);
     glDisable(GL_DEPTH_TEST);
     (void)set_window_size(win_width, win_height);

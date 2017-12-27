@@ -21,6 +21,9 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
         GLX_RED_SIZE, 4, GLX_GREEN_SIZE, 4, GLX_BLUE_SIZE, 4,
         GLX_ALPHA_SIZE, with_alpha ? 4 : 0,
         GLX_DEPTH_SIZE, with_depth ? 4 : 0,
+        // MSAA
+        GLX_SAMPLE_BUFFERS, 1,
+        GLX_SAMPLES, 4,
         None
     };
 

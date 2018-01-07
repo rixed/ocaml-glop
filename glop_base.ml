@@ -46,7 +46,7 @@ struct
     type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
     type color_specs = Array of color_array | Uniq of C.t
 
-    external init            : ?depth:bool -> ?alpha:bool -> string -> int -> int -> unit = "gl_init"
+    external init            : ?depth:bool -> ?alpha:bool -> ?double_buffer:bool -> string -> int -> int -> unit = "gl_init_bytecode" "gl_init_native"
     external exit            : unit -> unit = "gl_exit"
     external next_event      : bool -> event option = "gl_next_event"
     external clear           : ?color:C.t -> ?depth:K.t -> unit -> unit = "gl_clear"

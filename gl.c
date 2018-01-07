@@ -17,7 +17,9 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
     }
 
     int attrs[] = {
-        GLX_USE_GL, GLX_DOUBLEBUFFER, GLX_RGBA,
+        GLX_USE_GL,
+        double_buffer ? GLX_DOUBLEBUFFER : GLX_USE_GL /* ignored */,
+        GLX_RGBA,
         GLX_RED_SIZE, 4, GLX_GREEN_SIZE, 4, GLX_BLUE_SIZE, 4,
         GLX_ALPHA_SIZE, with_alpha ? 4 : 0,
         GLX_DEPTH_SIZE, with_depth ? 4 : 0,
@@ -129,7 +131,11 @@ static void reset_clear_depth(value depth)
 CAMLprim void gl_swap_buffers(void)
 {
     caml_release_runtime_system();
-    glXSwapBuffers(x_display, x_win);
+    if (double_buffer) {
+        glXSwapBuffers(x_display, x_win);
+    } else {
+        glFlush();
+    }
     print_error();
     caml_acquire_runtime_system();
 }

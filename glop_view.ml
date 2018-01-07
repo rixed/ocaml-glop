@@ -158,7 +158,8 @@ struct
 
     (* Some GL libs have a different GL context per threads, so you
      * must not call any GL functions in the on_event callback. *)
-    let display ?depth ?alpha ?(title="View") ?(on_event=ignore)
+    let display ?depth ?alpha ?double_buffer
+                ?(title="View") ?(on_event=ignore)
                 ?(width=800) ?(height=480)
                 ?(get_projection=get_projection_default) painters =
         let new_size_mutex = Mutex.create () in
@@ -191,7 +192,7 @@ struct
                     | _ -> ()) () ;
             List.iter ((|>) ()) painters ;
             swap_buffers () in
-        init ?depth ?alpha title width height ;
+        init ?depth ?alpha ?double_buffer title width height ;
         set_projection (get_projection K.one K.one) ;
         ignore (Thread.create event_thread ()) ;
         while not !want_exit do next_frame () done ;

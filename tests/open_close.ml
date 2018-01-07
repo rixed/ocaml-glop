@@ -27,4 +27,4 @@ let main =
         set_modelview modelview ;
         frame 30 in
 
-    View.display ~title:"test" ~on_event:on_event [paint_frame]
+    View.display ~double_buffer:false ~title:"test" ~on_event:on_event [paint_frame]

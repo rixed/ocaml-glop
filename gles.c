@@ -45,7 +45,11 @@ static int init_egl(bool with_depth, bool with_alpha)
         return -1;
     }
 
-    egl_surface = eglCreateWindowSurface(egl_display, ecfg, (void*)x_win, NULL);
+    EGLint attrs[] = {
+        EGL_RENDER_BUFFER, double_buffer ? EGL_BACK_BUFFER : EGL_SINGLE_BUFFER,
+        EGL_NONE
+    }
+    egl_surface = eglCreateWindowSurface(egl_display, ecfg, (void*)x_win, attrs);
     if (egl_surface == EGL_NO_SURFACE) {
         fprintf(stderr, "Unable to create EGL surface (eglError: %d)\n", eglGetError());
         return -1;
@@ -110,7 +114,7 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
     Atom fullscreen = XInternAtom(x_display, "_NET_WM_STATE_FULLSCREEN", False);
 
     XEvent xev;
-    memset ( &xev, 0, sizeof(xev) );
+    memset(&xev, 0, sizeof(xev));
 
     xev.type                 = ClientMessage;
     xev.xclient.window       = x_win;
@@ -190,8 +194,12 @@ static void reset_clear_depth(value depth)
 CAMLprim void gl_swap_buffers(void)
 {
     caml_release_runtime_system();
-    int res = eglSwapBuffers(egl_display, egl_surface);
-    assert(res == EGL_TRUE);
+    if (double_buffer) {
+        int res = eglSwapBuffers(egl_display, egl_surface);
+        assert(res == EGL_TRUE);
+    } else {
+        glFlush();
+    }
     print_error();
     caml_acquire_runtime_system();
 }

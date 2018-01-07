@@ -36,6 +36,7 @@ static int win_width, win_height;
 static XSetWindowAttributes win_attr = {
     .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | StructureNotifyMask,
 };
+static bool double_buffer;  // set in init() and used in specific init* and swap_buffer.
 static bool inited = false;
 
 /*
@@ -77,17 +78,26 @@ static void init(char const *title, bool with_depth, bool with_alpha, int width,
     inited = true;
 }
 
-CAMLprim void gl_init(value with_depth_, value with_alpha_, value title, value width, value height)
+CAMLprim void gl_init_native(value with_depth_, value with_alpha_, value double_buffer_, value title, value width, value height)
 {
-    CAMLparam5(with_depth_, with_alpha_, title, width, height);
+    CAMLparam5(with_depth_, with_alpha_, double_buffer_, title, width);
+    CAMLxparam1(height);
 
     assert(Tag_val(title) == String_tag);
     bool with_depth = Is_block(with_depth_) && Val_true == Field(with_depth_, 0);
     bool with_alpha = Is_block(with_alpha_) && Val_true == Field(with_alpha_, 0);
+    double_buffer = !(Is_block(double_buffer_) && Val_false == Field(double_buffer_, 0));
 
     init(String_val(title), with_depth, with_alpha, Long_val(width), Long_val(height));
 
     CAMLreturn0;
+}
+
+CAMLprim void gl_init_bytecode(value *argv, int argn)
+{
+  assert(argn == 6);
+  return gl_init_native(argv[0], argv[1], argv[2], argv[3],
+                        argv[4], argv[5]);
 }
 
 /*

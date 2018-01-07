@@ -36,7 +36,8 @@ sig
 
     (** Init *)
 
-    val init : ?depth:bool -> ?alpha:bool -> string -> int -> int -> unit
+    val init : ?depth:bool -> ?alpha:bool -> ?double_buffer:bool ->
+               string -> int -> int -> unit
     val exit : unit -> unit
 
     (** Events *)

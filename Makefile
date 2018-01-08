@@ -19,7 +19,7 @@ endif
 ML_SOURCES = $(LIB_SOURCES)
 
 INSTALL = \
-	$(NAME).cmxa $(LIB_SOURCES:.ml=.cmi) $(LIB_SOURCES:.ml=.cmx) \
+	$(NAME).cmxa $(NAME).cma $(LIB_SOURCES:.ml=.cmi) $(LIB_SOURCES:.ml=.cmx) \
 	glop.a libglop.a META
 
 all: $(INSTALL)
@@ -50,7 +50,7 @@ libglop.a: $(C_SOURCES:.c=.o)
 	$(AR) rcs $@ $^
 
 $(NAME).cma: $(ML_OBJS) libglop.a
-	$(OCAMLC)   -a -o $@ -package "$(REQUIRES)" -custom -linkpkg $(OCAMLFLAGS) $(ML_OBJS) -cclib -lglop $(GL_LIBS)
+	$(OCAMLC)   -a -o $@ -package "$(REQUIRES)" -custom $(OCAMLFLAGS) $(ML_OBJS) -cclib -lglop $(GL_LIBS)
 
 $(NAME).cmxa: $(ML_XOBJS) libglop.a
 	$(OCAMLOPT) -a -o $@ -package "$(REQUIRES)" $(OCAMLOPTFLAGS) $(ML_XOBJS) -cclib -lglop $(GL_LIBS)

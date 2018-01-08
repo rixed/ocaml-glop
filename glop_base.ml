@@ -41,7 +41,7 @@ struct
                | UnClic of int * int * int * int
                | Zoom   of int * int * int * int
                | UnZoom of int * int * int * int
-               | Drag   of int * int * int * int
+               | Move   of int * int * int * int
                | Resize of int * int
     type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
     type color_specs = Array of color_array | Uniq of C.t

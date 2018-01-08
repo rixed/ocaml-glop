@@ -27,7 +27,7 @@
 #define UNCLIC 1
 #define ZOOM   2
 #define UNZOOM 3
-#define DRAG   4
+#define MOVE   4
 #define RESIZE 5
 
 static Display *x_display;
@@ -141,9 +141,9 @@ static value unzoom_of(int px, int py)
     return _clic_of(UNZOOM, px, py);
 }
 
-static value drag_of(int px, int py)
+static value move_of(int px, int py)
 {
-    return _clic_of(DRAG, px, py);
+    return _clic_of(MOVE, px, py);
 }
 
 static value resize_of(int width, int height)
@@ -192,8 +192,8 @@ static value next_event(bool wait)
         wait_event();
         (void)XNextEvent(x_display, &xev);
 
-        if (xev.type == MotionNotify && (xev.xmotion.state & Button1Mask)) {
-            return drag_of(xev.xmotion.x, xev.xmotion.y);
+        if (xev.type == MotionNotify) {
+            return move_of(xev.xmotion.x, xev.xmotion.y);
         } else if (xev.type == KeyPress) {
         } else if (xev.type == ButtonPress) {
             switch (xev.xbutton.button) {

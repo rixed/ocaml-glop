@@ -46,7 +46,7 @@ sig
                | UnClic of int * int * int * int
                | Zoom   of int * int * int * int
                | UnZoom of int * int * int * int
-               | Drag   of int * int * int * int
+               | Move   of int * int * int * int
                | Resize of int * int
     (* Clic (x, y, width, height), Resize (width, height) *)
 

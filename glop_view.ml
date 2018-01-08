@@ -246,7 +246,7 @@ struct
                 Printf.printf "camera height is now %s.\n%!" (K.to_string cam_pos.(3).(2))
             | Clic _ (* start drag n drop *)
             | UnClic _ (* stop drag n drop or selection *)
-            | Drag _ (* actual drag *)
+            | Move _ (* actual drag *)
             | Resize _ -> (* resize *)
                 () in
         let get_projection r u =

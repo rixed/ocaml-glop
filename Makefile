@@ -72,7 +72,7 @@ clean-spec:
 	$(MAKE) -C tests clean
 
 distclean-spec:
-	$(RM) glop_spec.ml make.conf
+	$(RM) glop_spec.ml
 
 clear:
 	find . -type f -\( -name '*.ml' -o -name '*.mli' -o -name '*.c' -o -name '*.h' -\) | xargs sed -i -e 's/[ \t]\+$$//'

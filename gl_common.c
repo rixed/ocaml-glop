@@ -23,12 +23,12 @@
 #define sizeof_array(x) (sizeof(x) / sizeof(*x))
 
 // Some constructor tags
-#define CLIC   0
-#define UNCLIC 1
-#define ZOOM   2
-#define UNZOOM 3
-#define MOVE   4
-#define RESIZE 5
+#define Clic   0
+#define UnClic 1
+#define Zoom   2
+#define UnZoom 3
+#define Move   4
+#define Resize 5
 
 static Display *x_display;
 static Window x_win;
@@ -123,27 +123,27 @@ static value _clic_of(int tag, int px, int py)
 
 static value clic_of(int px, int py)
 {
-    return _clic_of(CLIC, px, py);
+    return _clic_of(Clic, px, py);
 }
 
 static value unclic_of(int px, int py)
 {
-    return _clic_of(UNCLIC, px, py);
+    return _clic_of(UnClic, px, py);
 }
 
 static value zoom_of(int px, int py)
 {
-    return _clic_of(ZOOM, px, py);
+    return _clic_of(Zoom, px, py);
 }
 
 static value unzoom_of(int px, int py)
 {
-    return _clic_of(UNZOOM, px, py);
+    return _clic_of(UnZoom, px, py);
 }
 
 static value move_of(int px, int py)
 {
-    return _clic_of(MOVE, px, py);
+    return _clic_of(Move, px, py);
 }
 
 static value resize_of(int width, int height)
@@ -151,7 +151,7 @@ static value resize_of(int width, int height)
     CAMLparam0();
     CAMLlocal4(resize, w, h, ret);
 
-    resize = caml_alloc(2, RESIZE); // Resize (w, h)
+    resize = caml_alloc(2, Resize); // Resize (w, h)
     w = Val_long(width);
     h = Val_long(height);
     Store_field(resize, 0, w);

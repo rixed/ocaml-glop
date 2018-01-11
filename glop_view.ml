@@ -244,11 +244,7 @@ struct
             | UnZoom _ ->
                 cam_pos.(3).(2) <- K.add cam_pos.(3).(2) (K.of_float 0.02) ;
                 Printf.printf "camera height is now %s.\n%!" (K.to_string cam_pos.(3).(2))
-            | Clic _ (* start drag n drop *)
-            | UnClic _ (* stop drag n drop or selection *)
-            | Move _ (* actual drag *)
-            | Resize _ -> (* resize *)
-                () in
+            | Clic _ | UnClic _ | Move _ | Resize _ -> () in
         let get_projection r u =
             M.frustum (K.neg r) r (K.neg u) u z_near z_far in
         display ~depth:true ~alpha:true ?title ~on_event ?width ?height ~get_projection [painter]

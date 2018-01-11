@@ -34,7 +34,7 @@ static Display *x_display;
 static Window x_win;
 static int win_width, win_height;
 static XSetWindowAttributes win_attr = {
-    .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | ButtonMotionMask | StructureNotifyMask,
+    .event_mask = ExposureMask | ButtonPressMask | ButtonReleaseMask | PointerMotionMask | StructureNotifyMask,
 };
 static bool double_buffer;  // set in init() and used in specific init* and swap_buffer.
 static bool inited = false;

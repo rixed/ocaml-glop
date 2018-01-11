@@ -176,6 +176,30 @@ static void wait_event(void)
     }
 }
 
+/* Event compression: for move events, pop as many as are waiting and
+ * report only the last one. */
+static void compress_events(XEvent *prev_xev, int prev_type)
+{
+    static int max_n = 0;
+    int n = 0;
+    XEvent xev;
+
+    while (XPending(x_display) > 0) {
+        XPeekEvent(x_display, &xev);
+        if (xev.type != prev_type) {
+            printf("%d follows %d\n", xev.type, prev_type);
+            if (n > max_n) {
+                max_n = n;
+                printf("Compressed %d events\n", max_n);
+            }
+            return;
+        }
+        *prev_xev = xev;
+        n ++;
+        (void)XNextEvent(x_display, &xev);  // remove it
+    }
+}
+
 static value next_event(bool wait)
 {
     // Typically, the init will be performed by another thread.
@@ -193,6 +217,7 @@ static value next_event(bool wait)
         (void)XNextEvent(x_display, &xev);
 
         if (xev.type == MotionNotify) {
+            compress_events(&xev, MotionNotify);
             return move_of(xev.xmotion.x, xev.xmotion.y);
         } else if (xev.type == KeyPress) {
         } else if (xev.type == ButtonPress) {
@@ -207,10 +232,12 @@ static value next_event(bool wait)
         } else if (xev.type == ButtonRelease) {
             return unclic_of(xev.xbutton.x, xev.xbutton.y);
         } else if (xev.type == Expose) {
+            compress_events(&xev, Expose);
             // We have in the event the size of the exposed area only
             (void)set_window_size(win_width, win_height);
             return resize_of(win_width, win_height);
         } else if (xev.type == ConfigureNotify) {
+            compress_events(&xev, ConfigureNotify);
             if (set_window_size(xev.xconfigurerequest.width, xev.xconfigurerequest.height)) {
                 return resize_of(xev.xconfigurerequest.width, xev.xconfigurerequest.height);
             }

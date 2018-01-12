@@ -14,6 +14,8 @@ include ../make.common
 	$(OCAMLOPT) -o $@ -package "$(REQUIRES)" -linkpkg $(OCAMLOPTFLAGS) $^
 
 clean-spec:
-	$(RM) $(PROGRAMS) $(PROGRAMS:.byte=.opt)
+	$(RM) *.cm[ioxa] *.cmxa *.a *.byte *.opt *.s *.o
+
+distclean-spec:
 
 -include .depend

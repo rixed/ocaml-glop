@@ -30,10 +30,10 @@ ML_XOBJS = $(ML_SOURCES:.ml=.cmx)
 # Clean up
 .PHONY: distclean distclean-spec clean clean-spec
 clean: clean-spec
-	$(RM) *.cmo *.s .depend
+	$(RM) *.cmo *.s .depend *.o
 
 distclean: clean distclean-spec
-	$(RM) *.cm[oxa] *.cmxa *.a *.byte *.opt
+	$(RM) *.cm[ioxa] *.cmxa *.a *.byte *.opt
 
 # Dependencies
 .depend: $(ML_SOURCES) $(C_SOURCES)

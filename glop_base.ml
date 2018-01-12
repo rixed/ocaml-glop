@@ -30,11 +30,18 @@ struct
       (* Actually it seems that in gl.c only floats are supported
        * (see gl_render()) !? *)
       include Algen_vector.Make (K) (CDim)
+
       let white = [| K.one  ; K.one  ; K.one  |]
       let black = [| K.zero ; K.zero ; K.zero |]
       let red   = [| K.one  ; K.zero ; K.zero |]
       let green = [| K.zero ; K.one  ; K.zero |]
       let blue  = [| K.zero ; K.zero ; K.one  |]
+
+      let intensify i c =
+        Array.map (fun k ->
+          let d =
+            if i >= 0.5 then K.sub K.one k else k in
+          K.add k (K.mul d (K.of_float (2. *. (i -. 0.5))))) c
     end
 
     type event = Clic   of int * int * int * int * bool
@@ -46,7 +53,7 @@ struct
     type render_type = Dot | Line_strip | Line_loop | Lines | Triangle_strip | Triangle_fans | Triangles
     type color_specs = Array of color_array | Uniq of C.t
 
-    external init            : ?depth:bool -> ?alpha:bool -> ?double_buffer:bool -> string -> int -> int -> unit = "gl_init_bytecode" "gl_init_native"
+    external init            : ?depth:bool -> ?alpha:bool -> ?double_buffer:bool -> ?msaa:bool -> string -> int -> int -> unit = "gl_init_bytecode" "gl_init_native"
     external exit            : unit -> unit = "gl_exit"
     external next_event      : bool -> event option = "gl_next_event"
     external clear           : ?color:C.t -> ?depth:K.t -> unit -> unit = "gl_clear"

@@ -8,7 +8,7 @@ static GLXContext glx_context;
  * Init
  */
 
-static int init_x(char const *title, bool with_depth, bool with_alpha, int width, int height)
+static int init_x(char const *title, bool with_depth, bool with_alpha, bool with_msaa, int width, int height)
 {
     x_display = XOpenDisplay(NULL);
     if (! x_display) {
@@ -24,22 +24,13 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
         // Sometime we have only double-buffered visuals
         double_buffer ? GLX_DOUBLEBUFFER : GLX_USE_GL /* ignored */,
         // MSAA XXX will be patched below if that is not available XXX
-        GLX_SAMPLE_BUFFERS, 1,
+        with_msaa ? GLX_SAMPLE_BUFFERS : None, 1,
         GLX_SAMPLES, 4,
         None
     };
 
     XVisualInfo *vinfo = glXChooseVisual(x_display, DefaultScreen(x_display), attrs);
-    if (! vinfo) {
-        // Jettison MSAA XXX It might be better to *force* double-buffering if that's the problem...
-        printf("Disabling MSAA to get a visual...\n");
-        attrs[5] = None; // Jettison MSAA XXX
-        vinfo = glXChooseVisual(x_display, DefaultScreen(x_display), attrs);
-        if (! vinfo) {
-          fprintf(stderr, "Cannot get a visual\n");
-          return -1;
-        }
-    }
+    if (! vinfo) return -1;
 
     Window root = RootWindow(x_display, vinfo->screen);
 

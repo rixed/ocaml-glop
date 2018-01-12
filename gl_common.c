@@ -11,6 +11,7 @@
 #include <caml/memory.h>
 #include <caml/alloc.h>
 #include <caml/bigarray.h>
+#include <caml/fail.h>
 
 #if CAML_VERSION > 31200
 #   include <caml/threads.h>
@@ -59,15 +60,15 @@ static bool set_window_size(int width, int height)
     return true;
 }
 
-static int init_x(char const *title, bool with_depth, bool with_alpha, int width, int height);
+static int init_x(char const *title, bool with_depth, bool with_alpha, bool with_msaa, int width, int height);
 
-static void init(char const *title, bool with_depth, bool with_alpha, int width, int height)
+static int init(char const *title, bool with_depth, bool with_alpha, bool with_msaa, int width, int height)
 {
     if (0 == XInitThreads()) {
         fprintf(stderr, "Cannot XInitThreads()\n");
     }
-    int err = init_x(title, with_depth, with_alpha, width, height);
-    assert(! err);
+    int err = init_x(title, with_depth, with_alpha, with_msaa, width, height);
+    if (0 != err) return err;
     glShadeModel(GL_FLAT);
     glEnable(GL_MULTISAMPLE);
     glDisable(GL_CULL_FACE);
@@ -76,28 +77,33 @@ static void init(char const *title, bool with_depth, bool with_alpha, int width,
     glViewport(0, 0, win_width, win_height);
     print_error();
     inited = true;
+
+    return 0;
 }
 
-CAMLprim void gl_init_native(value with_depth_, value with_alpha_, value double_buffer_, value title, value width, value height)
+CAMLprim void gl_init_native(value with_depth_, value with_alpha_, value double_buffer_, value with_msaa_, value title, value width, value height)
 {
-    CAMLparam5(with_depth_, with_alpha_, double_buffer_, title, width);
-    CAMLxparam1(height);
+    CAMLparam5(with_depth_, with_alpha_, double_buffer_, with_msaa_, title);
+    CAMLxparam2(width, height);
 
     assert(Tag_val(title) == String_tag);
     bool with_depth = Is_block(with_depth_) && Val_true == Field(with_depth_, 0);
     bool with_alpha = Is_block(with_alpha_) && Val_true == Field(with_alpha_, 0);
     double_buffer = !(Is_block(double_buffer_) && Val_false == Field(double_buffer_, 0));
+    bool with_msaa = Is_block(with_msaa_) && Val_true == Field(with_msaa_, 0);
 
-    init(String_val(title), with_depth, with_alpha, Long_val(width), Long_val(height));
+    if (0 != init(String_val(title), with_depth, with_alpha, with_msaa, Long_val(width), Long_val(height))) {
+        caml_failwith("Cannot open window");
+    }
 
     CAMLreturn0;
 }
 
 CAMLprim void gl_init_bytecode(value *argv, int argn)
 {
-  assert(argn == 6);
+  assert(argn == 7);
   return gl_init_native(argv[0], argv[1], argv[2], argv[3],
-                        argv[4], argv[5]);
+                        argv[4], argv[5], argv[6]);
 }
 
 /*

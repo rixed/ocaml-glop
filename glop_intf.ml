@@ -25,6 +25,10 @@ sig
     val red   : t
     val green : t
     val blue  : t
+
+    (* Makes a color brighter (>0.5) or darker (<0.5).
+     * 1 makes it white and 0 makes it black. *)
+    val intensify : float -> t -> t
 end
 
 module type CORE_GLOP =
@@ -36,8 +40,9 @@ sig
 
     (** Init *)
 
+    (* raises Failure when no visual match the requested specs *)
     val init : ?depth:bool -> ?alpha:bool -> ?double_buffer:bool ->
-               string -> int -> int -> unit
+               ?msaa:bool -> string -> int -> int -> unit
     val exit : unit -> unit
 
     (** Events *)

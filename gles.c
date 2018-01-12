@@ -72,7 +72,7 @@ static int init_egl(bool with_depth, bool with_alpha)
     return 0;
 }
 
-static int init_x(char const *title, bool with_depth, bool with_alpha, int width, int height)
+static int init_x(char const *title, bool with_depth, bool with_alpha, bool with_msaa, int width, int height)
 {
     x_display = XOpenDisplay(NULL);
     if (! x_display) {

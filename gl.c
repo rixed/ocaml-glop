@@ -17,13 +17,13 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
     }
 
     int attrs[] = {
-        GLX_USE_GL,
-        double_buffer ? GLX_DOUBLEBUFFER : GLX_USE_GL /* ignored */,
         GLX_RGBA,
         GLX_RED_SIZE, 4, GLX_GREEN_SIZE, 4, GLX_BLUE_SIZE, 4,
         GLX_ALPHA_SIZE, with_alpha ? 4 : 0,
         GLX_DEPTH_SIZE, with_depth ? 4 : 0,
-        // MSAA
+        // Sometime we have only double-buffered visuals
+        double_buffer ? GLX_DOUBLEBUFFER : GLX_USE_GL /* ignored */,
+        // MSAA XXX will be patched below if that is not available XXX
         GLX_SAMPLE_BUFFERS, 1,
         GLX_SAMPLES, 4,
         None
@@ -31,8 +31,14 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, int width
 
     XVisualInfo *vinfo = glXChooseVisual(x_display, DefaultScreen(x_display), attrs);
     if (! vinfo) {
-        fprintf(stderr, "Cannot open window\n");
-        return -1;
+        // Jettison MSAA XXX It might be better to *force* double-buffering if that's the problem...
+        printf("Disabling MSAA to get a visual...\n");
+        attrs[5] = None; // Jettison MSAA XXX
+        vinfo = glXChooseVisual(x_display, DefaultScreen(x_display), attrs);
+        if (! vinfo) {
+          fprintf(stderr, "Cannot get a visual\n");
+          return -1;
+        }
     }
 
     Window root = RootWindow(x_display, vinfo->screen);

@@ -104,7 +104,25 @@ CAMLprim void gl_init_bytecode(value *argv, int argn)
  * Event
  */
 
-static value _clic_of(int tag, int px, int py)
+static value _clic_of(int tag, int px, int py, bool shifted)
+{
+    CAMLparam0();
+    CAMLlocal2(clic, ret);
+
+    clic = caml_alloc(5, tag);  // Clic (x, y, w, h, shifted)
+    Store_field(clic, 0, Val_int(px));
+    Store_field(clic, 1, Val_int(py));
+    Store_field(clic, 2, Val_int(win_width));
+    Store_field(clic, 3, Val_int(win_height));
+    Store_field(clic, 4, Val_bool(shifted));
+
+    ret = caml_alloc(1, 0); // Some...
+    Store_field(ret, 0, clic);
+
+    CAMLreturn(ret);
+}
+
+static value _unclic_of(int tag, int px, int py)
 {
     CAMLparam0();
     CAMLlocal2(clic, ret);
@@ -121,29 +139,29 @@ static value _clic_of(int tag, int px, int py)
     CAMLreturn(ret);
 }
 
-static value clic_of(int px, int py)
+static value clic_of(int px, int py, bool shifted)
 {
-    return _clic_of(Clic, px, py);
+    return _clic_of(Clic, px, py, shifted);
 }
 
 static value unclic_of(int px, int py)
 {
-    return _clic_of(UnClic, px, py);
+    return _unclic_of(UnClic, px, py);
 }
 
-static value zoom_of(int px, int py)
+static value zoom_of(int px, int py, bool shifted)
 {
-    return _clic_of(Zoom, px, py);
+    return _clic_of(Zoom, px, py, shifted);
 }
 
 static value unzoom_of(int px, int py)
 {
-    return _clic_of(UnZoom, px, py);
+    return _unclic_of(UnZoom, px, py);
 }
 
 static value move_of(int px, int py)
 {
-    return _clic_of(Move, px, py);
+    return _unclic_of(Move, px, py);
 }
 
 static value resize_of(int width, int height)
@@ -223,9 +241,9 @@ static value next_event(bool wait)
         } else if (xev.type == ButtonPress) {
             switch (xev.xbutton.button) {
                 case Button1: case Button2: case Button3:
-                    return clic_of(xev.xbutton.x, xev.xbutton.y);
+                    return clic_of(xev.xbutton.x, xev.xbutton.y, xev.xbutton.state & ShiftMask);
                 case Button4:
-                    return zoom_of(xev.xbutton.x, xev.xbutton.y);
+                    return zoom_of(xev.xbutton.x, xev.xbutton.y, xev.xbutton.state & ShiftMask);
                 case Button5:
                     return unzoom_of(xev.xbutton.x, xev.xbutton.y);
             }

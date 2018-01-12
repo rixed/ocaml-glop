@@ -37,9 +37,9 @@ struct
       let blue  = [| K.zero ; K.zero ; K.one  |]
     end
 
-    type event = Clic   of int * int * int * int
+    type event = Clic   of int * int * int * int * bool
                | UnClic of int * int * int * int
-               | Zoom   of int * int * int * int
+               | Zoom   of int * int * int * int * bool
                | UnZoom of int * int * int * int
                | Move   of int * int * int * int
                | Resize of int * int

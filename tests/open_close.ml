@@ -3,7 +3,7 @@ module View = Glop_view.Make (Glop)
 open Glop
 
 let randcol () =
-    let rand1 () = K.rand K.one in
+    let rand1 () = KC.rand KC.one in
     [| rand1 (); rand1 (); rand1 (); rand1 () |]
 
 let randc n =

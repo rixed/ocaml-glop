@@ -15,6 +15,7 @@ struct
     module Dim = Dim
     module CDim = CDim
     module K = K
+    module KC = K
     type vertex_array = (float, Bigarray.float64_elt, Bigarray.c_layout) Bigarray.Array2.t
     let make_vertex_array nbv =
         Bigarray.Array2.create Bigarray.float64 Bigarray.c_layout nbv (Dim.v)

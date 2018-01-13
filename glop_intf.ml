@@ -14,6 +14,11 @@ sig
     val transverse : t -> t
     (* [transverse m] transpose the rotation part of m and inverse its translation part,
      * thus inverting m if m is orthonormal. *)
+
+    module MFloat : MATRIX with type K.t = float
+    val to_float   : t -> MFloat.t
+    (* [to_float] is used to convert to float matrices suitable for the
+     * opengl bindings. *)
 end
 
 module type COLOR =
@@ -34,9 +39,10 @@ end
 module type CORE_GLOP =
 sig
     module K : FIELD
+    module KC : FIELD
     module M : GLMATRIX with module K = K (* Of size 4x4 *)
     module V : VECTOR with module K = K (* Of dimension 2 to 4 *)
-    module C : COLOR with module K = K (* Of dimension 3 or 4 *)
+    module C : COLOR with module K = KC (* Of dimension 3 or 4 *)
 
     (** Init *)
 

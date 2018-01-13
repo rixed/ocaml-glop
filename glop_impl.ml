@@ -100,15 +100,21 @@ struct
         Array.sub v 0 GB.V.Dim.v
 end
 
+module MakeCustom (Spec : GLOPSPEC) :
+    GLOP with module V.Dim = Spec.Dim
+         and module C.Dim = Spec.CDim
+         and module K = Spec.K =
+struct
+    module GB = GlopBase (Spec)
+    include GB
+    include Extension (GB)
+end
+
 module Make (Dim : CONF_INT) (CDim: CONF_INT) :
     GLOP with module V.Dim = Dim
          and module C.Dim = CDim
          and module K = Glop_spec.K =
-struct
-    module GB = GlopBase (Glop_spec.Spec (Dim) (CDim))
-    include GB
-    include Extension (GB)
-end
+    MakeCustom (Glop_spec.Spec (Dim) (CDim))
 
 open Algen_impl
 module Glop2D = Make (Dim2) (Dim3)

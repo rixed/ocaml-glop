@@ -65,4 +65,7 @@ struct
                            K.mul pos.(2).(2) pos.(3).(2) ]) ;
            K.one |]
     |]
+
+  module MFloat = Algen_matrix.Make (Algen_impl.FloatField) (MDim) (MDim)
+  let to_float m = Array.map (Array.map K.to_float) m
 end

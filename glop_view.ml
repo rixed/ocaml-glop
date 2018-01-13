@@ -219,10 +219,10 @@ struct
                     (* draw grey background *)
                     let arr = [| [|i;i|] ; [|j;i|] ;
                                  [|j;j|] ; [|i;j|] |] |> to_vertex_array in
-                    let grid_bg_color = Array.map K.of_float [|0.5; 0.5; 0.5; 0.3|] in
+                    let grid_bg_color = Array.map KC.of_float [|0.5; 0.5; 0.5; 0.3|] in
                     render Triangle_fans arr (Uniq grid_bg_color) ;
                     (* axis *)
-                    let axis_color = Array.map K.of_float [|1.; 1.; 1.; 0.6|] in
+                    let axis_color = Array.map KC.of_float [|1.; 1.; 1.; 0.6|] in
                     let arr = [| [|o;K.neg i|] ; [|o;K.sub i a|] ;
                                  [|K.neg i;o|] ; [|K.sub i a;o|] |] |> to_vertex_array in
                     render Lines arr (Uniq axis_color) ;

@@ -13,7 +13,7 @@ sig
     val rotate     : K.t -> K.t -> K.t -> float -> t
     val transverse : t -> t
     (* [transverse m] transpose the rotation part of m and inverse its translation part,
-     * thus inversing m if m is orthonormal. *)
+     * thus inverting m if m is orthonormal. *)
 end
 
 module type COLOR =

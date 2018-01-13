@@ -21,9 +21,8 @@ static int init_x(char const *title, bool with_depth, bool with_alpha, bool with
         GLX_RED_SIZE, 4, GLX_GREEN_SIZE, 4, GLX_BLUE_SIZE, 4,
         GLX_ALPHA_SIZE, with_alpha ? 4 : 0,
         GLX_DEPTH_SIZE, with_depth ? 4 : 0,
-        // Sometime we have only double-buffered visuals
+        // Warning: Sometime we have only double-buffered visuals
         double_buffer ? GLX_DOUBLEBUFFER : GLX_USE_GL /* ignored */,
-        // MSAA XXX will be patched below if that is not available XXX
         with_msaa ? GLX_SAMPLE_BUFFERS : None, 1,
         GLX_SAMPLES, 4,
         None

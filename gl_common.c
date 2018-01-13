@@ -211,10 +211,10 @@ static void compress_events(XEvent *prev_xev, int prev_type)
     while (XPending(x_display) > 0) {
         XPeekEvent(x_display, &xev);
         if (xev.type != prev_type) {
-            printf("%d follows %d\n", xev.type, prev_type);
+            //printf("%d follows %d\n", xev.type, prev_type);
             if (n > max_n) {
                 max_n = n;
-                printf("Compressed %d events\n", max_n);
+                //printf("Compressed %d events\n", max_n);
             }
             return;
         }

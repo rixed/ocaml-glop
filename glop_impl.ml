@@ -12,7 +12,7 @@ struct
     let set_proj ()  = GB.set_projection (List.hd !proj_stack)
     let set_model () = GB.set_modelview  (List.hd !model_stack)
 
-    (* Alter matrix stack and reset currnet matrix *)
+    (* Alter matrix stack and reset current matrix *)
     let set_projection m   = proj_stack  := m :: (List.tl !proj_stack) ; set_proj ()
     let set_modelview m    = model_stack := m :: (List.tl !model_stack) ; set_model ()
     let push_projection () = proj_stack  := (List.hd !proj_stack) :: !proj_stack
@@ -111,7 +111,6 @@ struct
 end
 
 open Algen_impl
-(* FIXME: when alpha is not requested pass a param to init to disable GL_BLEND *)
 module Glop2D = Make (Dim2) (Dim3)
 module Glop3D = Make (Dim3) (Dim3)
 module Glop2Dalpha = Make (Dim2) (Dim4)
